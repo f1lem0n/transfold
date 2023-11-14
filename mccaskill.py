@@ -14,7 +14,12 @@ BP_ENERGY_WEIGHT = -1
 NORMALIZED_RT = 1
 
 
-def print_params(seq):
+class Stdout:
+    def print_params(seq: str):
+        ...
+
+
+def print_params(seq: str) -> Stdout:
     header = "{:<20} {:>20}".format("Variable", "Value")
     print("=" * len(header))
     print(header)
@@ -26,7 +31,7 @@ def print_params(seq):
     print(f"Sequence: {seq}\n")
 
 
-def check_sequence(seq):
+def check_sequence(seq: str) -> bool:
     allowed_bases = ["A", "U", "G", "C"]
     for base in seq:
         if base not in allowed_bases:
@@ -34,7 +39,7 @@ def check_sequence(seq):
     return True
 
 
-def check_pairing(base1, base2):
+def check_pairing(base1: str, base2: str) -> bool:
     pairing_bases = [("A", "U"), ("G", "C"), ("G", "U")]
     if (base1, base2) in pairing_bases or (base2, base1) in pairing_bases:
         return True
@@ -42,11 +47,12 @@ def check_pairing(base1, base2):
         return False
 
 
-def create_scoring_tables(seq):
+def create_scoring_tables(seq: str) -> np.ndarray:
     n = len(seq) + 1
     qbp = np.zeros((n, n))
     q = np.ones((n, n))
     for i, j in np.ndindex(q.shape):
+        # 1-based indexing and skipping fields below diagonal
         if j == 0 or i == 0 or i > j:
             continue
         try:
@@ -62,7 +68,9 @@ def create_scoring_tables(seq):
     return q[1:, :], qbp[1:, :]
 
 
-def calc_paired_unpaired_probabilities(q, qbp):
+def calc_paired_unpaired_probabilities(
+    q: np.ndarray, qbp: np.ndarray
+) -> np.ndarray:
     pass
 
 
