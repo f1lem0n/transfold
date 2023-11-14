@@ -10,6 +10,7 @@ class FrabaseSpider(scrapy.Spider):
     ]
 
     def start_requests(self):
+        Path("../data/frabase/2D").mkdir(parents=True, exist_ok=True)
         for url in self.start_urls:
             yield scrapy.Request(url=url, callback=self.parse_main)
 
