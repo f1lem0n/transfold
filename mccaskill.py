@@ -47,7 +47,7 @@ def check_pairing(base1: str, base2: str) -> bool:
         return False
 
 
-def create_scoring_tables(seq: str) -> np.ndarray:
+def create_scoring_tables(seq: str) -> tuple[np.ndarray]:
     n = len(seq) + 1
     qbp = np.zeros((n, n))
     q = np.ones((n, n))
