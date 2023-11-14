@@ -14,12 +14,12 @@ BP_ENERGY_WEIGHT = -1
 NORMALIZED_RT = 1
 
 
-class Stdout:
+class stdout:
     def print_params(seq: str):
         ...
 
 
-def print_params(seq: str) -> Stdout:
+def print_params(seq: str) -> stdout:
     header = "{:<20} {:>20}".format("Variable", "Value")
     print("=" * len(header))
     print(header)
