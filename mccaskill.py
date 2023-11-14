@@ -15,13 +15,14 @@ NORMALIZED_RT = 1
 
 
 def print_params(seq):
-    print("=" * 26)
-    print("{:<20} {:<20}".format("Variable", "Value"))
-    print("=" * 26)
-    print("{:<20} {:<20}".format("MIN_LOOP_LENGTH", MIN_LOOP_LENGTH))
-    print("{:<20} {:<20}".format("BP_ENERGY_WEIGHT", BP_ENERGY_WEIGHT))
-    print("{:<20} {:<20}".format("NORMALIZED_RT", NORMALIZED_RT))
-    print("=" * 26)
+    header = "{:<20} {:>20}".format("Variable", "Value")
+    print("=" * len(header))
+    print(header)
+    print("=" * len(header))
+    print("{:<20} {:>20}".format("MIN_LOOP_LENGTH", MIN_LOOP_LENGTH))
+    print("{:<20} {:>20}".format("BP_ENERGY_WEIGHT", BP_ENERGY_WEIGHT))
+    print("{:<20} {:>20}".format("NORMALIZED_RT", NORMALIZED_RT))
+    print("-" * len(header))
     print(f"Sequence: {seq}\n")
 
 
@@ -56,9 +57,13 @@ def create_scoring_tables(seq):
             )
         except IndexError:
             pass
-        K = [k for k in range(i, j) if i <= k < j - MIN_LOOP_LENGTH]
-        q[i][j] = q[i][j - 1] + sum(q[i][k - 1] * qbp[k][j] for k in K)
+        ks = [k for k in range(i, j) if i <= k < j - MIN_LOOP_LENGTH]
+        q[i][j] = q[i][j - 1] + sum(q[i][k - 1] * qbp[k][j] for k in ks)
     return q[1:, :], qbp[1:, :]
+
+
+def calc_paired_unpaired_probabilities(q, qbp):
+    pass
 
 
 if __name__ == "__main__":
