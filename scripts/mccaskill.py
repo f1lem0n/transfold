@@ -76,7 +76,7 @@ def create_scoring_tables(
 #     pass
 
 
-if __name__ == "__main__":
+def main() -> stdout:  # pragma: no cover
     seq = argv[1]
     if not check_sequence(seq):
         print("Invalid sequence!")
@@ -85,3 +85,7 @@ if __name__ == "__main__":
     q, qbp = create_scoring_tables(seq, 3)
     print(f"Q:\n{q.round(2)}\n")
     print(f"Qbp:\n{qbp.round(2)}\n")
+
+
+if __name__ == "__main__":
+    main()  # pragma: no cover
