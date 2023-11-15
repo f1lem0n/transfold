@@ -18,4 +18,10 @@ conda env create -f envs/msc.yaml -y
 ## Usage
 
 1. Firstly `conda activate msc`.
-1. Run `python3 mccaskill.py <RNA_sequence>`
+2. Run `python3 scripts/mccaskill.py <RNA_sequence>`
+
+## Development
+
+1. Develop a feature in separate branch.
+2. Use conda environment `msc` for development or create separate env.
+3. Use `make`
