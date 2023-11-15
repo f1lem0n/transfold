@@ -29,7 +29,7 @@ conda env create -f envs/msc.yaml
     $ make
     help - display this help message
     test - measure code coverage with pytest
-    format - format package with black
+    format - format package with black and isort
     lint - static code analysis with flake8 and mypy
     clean - remove common artifacts from the directory tree
     ```
