@@ -2,7 +2,6 @@
 # Date of creation: 14/11/2023
 # Description: Implementation of simplified McCaskill algorithm
 #              for RNA secondary structure prediction
-# Version: 0.1
 
 from sys import argv
 

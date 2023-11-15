@@ -1,10 +1,14 @@
+# Author: Filip Hajdyła
+# Date of creation: 15/11/2023
+# Description: Automation of common tasks for the project
+
 .PHONY: help test format lint clean
 
 help:
-	@echo "help - display this message"
-	@echo "test - measure code coverage with pytest engine"
+	@echo "help - display this help message"
+	@echo "test - measure code coverage with pytest"
 	@echo "format - format package with black"
-	@echo "lint - static code analysis"
+	@echo "lint - static code analysis with flake8 and mypy"
 	@echo "clean - remove common artifacts from the directory tree"
 
 test:
