@@ -12,7 +12,7 @@ Run this in your terminal (for UNIX-based systems):
 ```
 git clone https://github.com/f1lem0n/msc.git
 cd msc
-conda env create -f envs/msc.yaml -y
+conda env create -f envs/msc.yaml
 ```
 
 ## Usage
