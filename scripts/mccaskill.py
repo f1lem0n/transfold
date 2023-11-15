@@ -15,6 +15,8 @@ NORMALIZED_RT = 1
 
 
 class stdout:
+    """Methods for printing to stdout"""
+
     @staticmethod
     def print_params(seq: str):
         header = "{:<20} {:>20}".format("Variable", "Value")
