@@ -70,10 +70,50 @@ def create_scoring_tables(
     return q, qbp
 
 
-# def calc_paired_unpaired_probabilities(
-#     q: np.ndarray, qbp: np.ndarray
-# ) -> np.ndarray:
-#     pass
+def calc_paired_unpaired_probabilities(
+    q: np.ndarray, qbp: np.ndarray, iters
+) -> tuple[np.ndarray, np.ndarray]:
+    p = np.zeros(q.shape)
+    pbp = np.zeros(qbp.shape)
+    for _ in range(iters):
+        for i, j in np.ndindex(p.shape):
+            # 1-based indexing and skipping fields below diagonal
+            if j == 0 or i == 0 or i > j:
+                continue
+            ks = [k for k in range(i, j) if k < i]  # noqa
+            ls = [l for l in range(i, j) if j < l]  # noqa
+            try:
+                pbp[i][j] = (
+                    q[1][i - 1]
+                    * qbp[i][j]
+                    * q[j + 1][len(q) - 1]
+                    / q[1][len(q) - 1]
+                ) + sum(
+                    pbp[k][l]
+                    * (
+                        np.exp(-BP_ENERGY_WEIGHT / NORMALIZED_RT)
+                        * qbp[k + 1][l - 1]
+                        * qbp[i][j]
+                        * q[j + 1][l - 1]
+                    )
+                    / qbp[k][l]
+                    for k, l in zip(ks, ls)
+                )
+                p[i][j] = (
+                    q[1][i - 1] * q[j + 1][len(q) - 1] / q[1][len(q) - 1]
+                ) + sum(
+                    pbp[k][l]
+                    * (
+                        np.exp(-BP_ENERGY_WEIGHT / NORMALIZED_RT)
+                        * q[k + 1][i - 1]
+                        * q[j + 1][l - 1]
+                    )
+                    / qbp[k][l]
+                    for k, l in zip(ks, ls)
+                )
+            except IndexError:
+                pass
+    return p[1:, 1:], pbp[1:, 1:]
 
 
 def main() -> stdout:  # pragma: no cover
@@ -82,9 +122,11 @@ def main() -> stdout:  # pragma: no cover
         print("Invalid sequence!")
         exit(1)
     stdout.print_params(seq)
-    q, qbp = create_scoring_tables(seq, 3)
-    print(f"Q:\n{q.round(2)}\n")
-    print(f"Qbp:\n{qbp.round(2)}\n")
+    q, qbp = create_scoring_tables(seq, 5)
+    p, pbp = calc_paired_unpaired_probabilities(q, qbp, 5)
+    print(f"P:\n{p.round(2)}\n")
+    print(f"Pbp:\n{pbp.round(2)}\n")
+    return stdout()
 
 
 if __name__ == "__main__":

@@ -19,8 +19,8 @@ test:
 		coverage report -m;\
 
 format:
-	@black -l 79 scripts/ tests/
-	@isort scripts/ tests/
+	@black -l 79 -t py312 --safe scripts/ tests/
+	@isort --profile black scripts/ tests/
 
 lint:
 	@flake8 scripts/ tests/
