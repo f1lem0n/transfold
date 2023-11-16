@@ -2,6 +2,7 @@ import numpy as np
 from pytest import CaptureFixture
 
 from scripts.mccaskill import (
+    calc_paired_unpaired_probabilities,
     check_pairing,
     check_sequence,
     create_scoring_tables,
@@ -59,6 +60,7 @@ def test_create_scorting_tables():
     assert type(create_scoring_tables(VALID_SEQ, 3)[1]) == np.ndarray
     assert create_scoring_tables(VALID_SEQ, 3)[0].shape == (8, 8)
     assert create_scoring_tables(VALID_SEQ, 3)[1].shape == (8, 8)
+    # TODO correct these tables
     create_scoring_tables(VALID_SEQ, 3)[0].round(2) == np.array(
         [
             [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
@@ -83,3 +85,37 @@ def test_create_scorting_tables():
             [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
         ]
     )
+
+
+def test_calc_paired_unpaired_probabilities():
+    assert (
+        type(
+            calc_paired_unpaired_probabilities(
+                *create_scoring_tables(VALID_SEQ, 3), 3
+            )
+        )
+        == tuple
+    )
+    assert (
+        type(
+            calc_paired_unpaired_probabilities(
+                *create_scoring_tables(VALID_SEQ, 3), 3
+            )[0]
+        )
+        == np.ndarray
+    )
+    assert (
+        type(
+            calc_paired_unpaired_probabilities(
+                *create_scoring_tables(VALID_SEQ, 3), 3
+            )[1]
+        )
+        == np.ndarray
+    )
+    assert calc_paired_unpaired_probabilities(
+        *create_scoring_tables(VALID_SEQ, 3), 3
+    )[0].shape == (7, 7)
+    assert calc_paired_unpaired_probabilities(
+        *create_scoring_tables(VALID_SEQ, 3), 3
+    )[1].shape == (7, 7)
+    # TODO create correct tables

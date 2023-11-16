@@ -19,8 +19,10 @@ test:
 		coverage report -m;\
 
 format:
-	@black -l 79 -t py312 --safe scripts/ tests/
+	@echo "Sorting imports..."
 	@isort --profile black scripts/ tests/
+	@echo "Formatting code..."
+	@black -l 79 -t py312 --safe scripts/ tests/
 
 lint:
 	@flake8 scripts/ tests/
