@@ -20,16 +20,16 @@ test:
 
 format:
 	@echo "Sorting imports..."
-	@isort --profile black scripts/ tests/
+	@isort --profile black modules/ tests/
 	@echo "Formatting code..."
-	@black -l 79 -t py312 --safe scripts/ tests/
+	@black -l 79 -t py312 --safe modules/ tests/
 
 lint:
-	@flake8 scripts/ tests/
-	@mypy scripts/ tests/
+	@flake8 modules/ tests/
+	@mypy modules/ tests/
 
 clean:
 	@rm -rf .coverage .pytest-monitor .pytest_cache .mypy_cache
 	@rm -rf \
-		scripts/__pycache__ \
+		modules/__pycache__ \
 		tests/__pycache__

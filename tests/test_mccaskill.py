@@ -1,12 +1,10 @@
 import numpy as np
-from pytest import CaptureFixture
 
-from scripts.mccaskill import (
+from modules.mccaskill import (
     calc_paired_unpaired_probabilities,
     check_pairing,
     check_sequence,
     create_scoring_tables,
-    stdout,
 )
 
 # do not change these params
@@ -15,25 +13,6 @@ BP_ENERGY_WEIGHT = -1
 NORMALIZED_RT = 1
 VALID_SEQ = "GGUCCAC"
 INVALID_SEQ = "GGTCCACZ"
-
-
-# capsys is used to capture stdout and stderr from stdout.print_params()
-def test_print_params(capsys: CaptureFixture[str]):
-    assert type(stdout.print_params(VALID_SEQ)) == stdout
-    captured = capsys.readouterr()
-    assert (
-        captured.out
-        == """=========================================
-Variable                            Value
-=========================================
-MIN_LOOP_LENGTH                         1
-BP_ENERGY_WEIGHT                       -1
-NORMALIZED_RT                           1
------------------------------------------
-Sequence: GGUCCAC
-
-"""
-    )
 
 
 def test_check_sequence():
@@ -54,14 +33,41 @@ def test_check_pairing():
     assert check_pairing("A", "A") is False
 
 
-def test_create_scorting_tables():
-    assert type(create_scoring_tables(VALID_SEQ, 3)) == tuple
-    assert type(create_scoring_tables(VALID_SEQ, 3)[0]) == np.ndarray
-    assert type(create_scoring_tables(VALID_SEQ, 3)[1]) == np.ndarray
-    assert create_scoring_tables(VALID_SEQ, 3)[0].shape == (8, 8)
-    assert create_scoring_tables(VALID_SEQ, 3)[1].shape == (8, 8)
+def test_create_scoring_tables():
+    assert (
+        type(
+            create_scoring_tables(
+                VALID_SEQ, 3, BP_ENERGY_WEIGHT, NORMALIZED_RT, MIN_LOOP_LENGTH
+            )
+        )
+        == tuple
+    )
+    assert (
+        type(
+            create_scoring_tables(
+                VALID_SEQ, 3, BP_ENERGY_WEIGHT, NORMALIZED_RT, MIN_LOOP_LENGTH
+            )[0]
+        )
+        == np.ndarray
+    )
+    assert (
+        type(
+            create_scoring_tables(
+                VALID_SEQ, 3, BP_ENERGY_WEIGHT, NORMALIZED_RT, MIN_LOOP_LENGTH
+            )[1]
+        )
+        == np.ndarray
+    )
+    assert create_scoring_tables(
+        VALID_SEQ, 3, BP_ENERGY_WEIGHT, NORMALIZED_RT, MIN_LOOP_LENGTH
+    )[0].shape == (8, 8)
+    assert create_scoring_tables(
+        VALID_SEQ, 3, BP_ENERGY_WEIGHT, NORMALIZED_RT, MIN_LOOP_LENGTH
+    )[1].shape == (8, 8)
     # TODO correct these tables
-    create_scoring_tables(VALID_SEQ, 3)[0].round(2) == np.array(
+    create_scoring_tables(
+        VALID_SEQ, 3, BP_ENERGY_WEIGHT, NORMALIZED_RT, MIN_LOOP_LENGTH
+    )[0].round(2) == np.array(
         [
             [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
             [1.0, 1.0, 1.0, 3.72, 9.15, 21.98, 24.7, 59.69],
@@ -73,7 +79,9 @@ def test_create_scorting_tables():
             [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
         ]
     )
-    create_scoring_tables(VALID_SEQ, 3)[1].round(2) == np.array(
+    create_scoring_tables(
+        VALID_SEQ, 3, BP_ENERGY_WEIGHT, NORMALIZED_RT, MIN_LOOP_LENGTH
+    )[1].round(2) == np.array(
         [
             [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
             [0.0, 0.0, 0.0, 2.72, 2.72, 10.11, 0.0, 24.89],
@@ -91,7 +99,16 @@ def test_calc_paired_unpaired_probabilities():
     assert (
         type(
             calc_paired_unpaired_probabilities(
-                *create_scoring_tables(VALID_SEQ, 3), 3
+                *create_scoring_tables(
+                    VALID_SEQ,
+                    3,
+                    BP_ENERGY_WEIGHT,
+                    NORMALIZED_RT,
+                    MIN_LOOP_LENGTH,
+                ),
+                3,
+                BP_ENERGY_WEIGHT,
+                NORMALIZED_RT,
             )
         )
         == tuple
@@ -99,7 +116,16 @@ def test_calc_paired_unpaired_probabilities():
     assert (
         type(
             calc_paired_unpaired_probabilities(
-                *create_scoring_tables(VALID_SEQ, 3), 3
+                *create_scoring_tables(
+                    VALID_SEQ,
+                    3,
+                    BP_ENERGY_WEIGHT,
+                    NORMALIZED_RT,
+                    MIN_LOOP_LENGTH,
+                ),
+                3,
+                BP_ENERGY_WEIGHT,
+                NORMALIZED_RT,
             )[0]
         )
         == np.ndarray
@@ -107,15 +133,70 @@ def test_calc_paired_unpaired_probabilities():
     assert (
         type(
             calc_paired_unpaired_probabilities(
-                *create_scoring_tables(VALID_SEQ, 3), 3
+                *create_scoring_tables(
+                    VALID_SEQ,
+                    3,
+                    BP_ENERGY_WEIGHT,
+                    NORMALIZED_RT,
+                    MIN_LOOP_LENGTH,
+                ),
+                3,
+                BP_ENERGY_WEIGHT,
+                NORMALIZED_RT,
             )[1]
         )
         == np.ndarray
     )
     assert calc_paired_unpaired_probabilities(
-        *create_scoring_tables(VALID_SEQ, 3), 3
+        *create_scoring_tables(
+            VALID_SEQ, 3, BP_ENERGY_WEIGHT, NORMALIZED_RT, MIN_LOOP_LENGTH
+        ),
+        3,
+        BP_ENERGY_WEIGHT,
+        NORMALIZED_RT,
     )[0].shape == (7, 7)
     assert calc_paired_unpaired_probabilities(
-        *create_scoring_tables(VALID_SEQ, 3), 3
+        *create_scoring_tables(
+            VALID_SEQ, 3, BP_ENERGY_WEIGHT, NORMALIZED_RT, MIN_LOOP_LENGTH
+        ),
+        3,
+        BP_ENERGY_WEIGHT,
+        NORMALIZED_RT,
     )[1].shape == (7, 7)
-    # TODO create correct tables
+    # TODO correct these tables
+    calc_paired_unpaired_probabilities(
+        *create_scoring_tables(
+            VALID_SEQ, 3, BP_ENERGY_WEIGHT, NORMALIZED_RT, MIN_LOOP_LENGTH
+        ),
+        3,
+        BP_ENERGY_WEIGHT,
+        NORMALIZED_RT,
+    )[0] == np.array(
+        [
+            [0.32, 0.06, 0.02, 0.02, 0.02, 0.02, 0.0],
+            [0.0, 0.06, 0.02, 0.02, 0.02, 0.02, 0.0],
+            [0.0, 0.0, 0.02, 0.02, 0.02, 0.02, 0.0],
+            [0.0, 0.0, 0.0, 0.06, 0.06, 0.06, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.15, 0.15, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.37, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        ]
+    )
+    calc_paired_unpaired_probabilities(
+        *create_scoring_tables(
+            VALID_SEQ, 3, BP_ENERGY_WEIGHT, NORMALIZED_RT, MIN_LOOP_LENGTH
+        ),
+        3,
+        BP_ENERGY_WEIGHT,
+        NORMALIZED_RT,
+    )[1] == np.array(
+        [
+            [0.0, 0.0, 0.05, 0.05, 0.17, 0.0, 0.0],
+            [0.0, 0.0, 0.05, 0.05, 0.05, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.05, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        ]
+    )

@@ -1,5 +1,6 @@
 # Custom
-data/
+coding_seq/
+protein_seq/
 .vscode/
 
 # Byte-compiled / optimized / DLL files
