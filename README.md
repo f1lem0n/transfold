@@ -1,4 +1,4 @@
-# Transfold (WIP)
+# Transfold 🧬 (WIP)
 
 ## Prerequisites
 
