@@ -1,4 +1,4 @@
-# msc (WIP)
+# Transfold (WIP)
 
 ## Prerequisites
 
@@ -9,21 +9,23 @@
 
 Run this in your terminal (for UNIX-based systems):
 
+1. Clone the repository and create conda environment:
+
 ```
-git clone https://github.com/f1lem0n/msc.git
-cd msc
-conda env create -f envs/msc.yaml
+git clone https://github.com/f1lem0n/transfold.git
+cd transfold
+conda env create -f environment.yaml
 ```
 
 ## Usage
 
-1. Firstly `conda activate msc`.
-2. Run `python3 modules/mccaskill.py <RNA_sequence>`
+1. Firstly `conda activate transfold`.
+2. To see help execute `python transfold.py -h`.
 
 ## Development
 
 1. Develop a feature in separate branch.
-2. Use conda environment `msc` for development or create separate env.
+2. Use conda environment `transfold` for development or create separate env.
 3. Use `make` for automated tasks:
     ```
     $ make
