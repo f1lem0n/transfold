@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -34,11 +35,11 @@ def get_pdb_ids(scope_df: pd.DataFrame) -> list[str]:
 
 
 def get_protein_sequence(pdb_id: str) -> str:
-    response = rq.get(
-        f"https://data.rcsb.org/rest/v1/core/polymer_entity/{pdb_id}/1",
-        timeout=10,
-    ).json()
     try:
+        response = rq.get(
+            "https://data.rcsb.org/rest" f"/v1/core/polymer_entity/{pdb_id}/1",
+            timeout=10,
+        ).json()
         sequence = response["entity_poly"]["pdbx_seq_one_letter_code_can"]
         return sequence.upper()
     except (

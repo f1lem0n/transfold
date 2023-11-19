@@ -25,5 +25,7 @@ def download_all_protein_sequences(
     return skipped
 
 
-def download_all_coding_sequences(output: Path, scope_df: pd.DataFrame) -> int:
-    pass
+# def download_all_coding_sequences(
+#         output: Path, scope_df: pd.DataFrame
+# ) -> int:
+#     pass
