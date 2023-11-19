@@ -1,12 +1,9 @@
 from pathlib import Path
 
-from tqdm import tqdm
 import pandas as pd
+from tqdm import tqdm
 
-from modules.scopes_parser import (
-    get_pdb_ids,
-    get_protein_sequence,
-)
+from modules.scopes_parser import get_pdb_ids, get_protein_sequence
 
 
 def download_all_protein_sequences(
