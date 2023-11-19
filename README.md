@@ -9,8 +9,6 @@
 
 Run this in your terminal (for UNIX-based systems):
 
-1. Clone the repository and create conda environment:
-
 ```
 git clone https://github.com/f1lem0n/transfold.git
 cd transfold
