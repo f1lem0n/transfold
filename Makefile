@@ -33,3 +33,6 @@ clean:
 	@rm -rf \
 		modules/__pycache__ \
 		tests/__pycache__
+	@rm -rf \
+		tests/data/protein_seq/ \
+		tests/data/coding_seq/
