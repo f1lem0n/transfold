@@ -40,6 +40,7 @@ def get_uniprot_id(pdb_id: str, retries=3) -> str:
         )
         if response.status_code == 200:
             content = response.json()
+            response.close()
             uniprot_id = content["rcsb_polymer_entity_container_identifiers"][
                 "uniprot_ids"
             ][0]
@@ -55,6 +56,7 @@ def get_gene_id(uniprot_id: str, retries=3) -> str:
         )
         if response.status_code == 200:
             content = response.text.split("\n")
+            response.close()
             for line in content:
                 if "GeneID;" in line:
                     return line.split(";")[1].strip()
