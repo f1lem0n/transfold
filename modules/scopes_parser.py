@@ -33,25 +33,44 @@ def get_pdb_ids(scope_df: pd.DataFrame) -> list[str]:
     return scope_df["pdb_id"].unique().tolist()
 
 
-def get_uniprot_id(pdb_id: str) -> str:
-    try:
+def get_uniprot_id(pdb_id: str, retries=3) -> str:
+    for _ in range(retries):
         response = rq.get(
-            "https://data.rcsb.org/rest" f"/v1/core/polymer_entity/{pdb_id}/1",
+            f"https://data.rcsb.org/rest/v1/core/polymer_entity/{pdb_id}/1"
+        )
+        if response.status_code == 200:
+            content = response.json()
+            uniprot_id = content["rcsb_polymer_entity_container_identifiers"][
+                "uniprot_ids"
+            ][0]
+            return uniprot_id.upper()
+    return ""
+
+
+def get_gene_id(uniprot_id: str, retries=3) -> str:
+    for _ in range(retries):
+        response = rq.get(
+            f"https://rest.uniprot.org/uniprotkb/{uniprot_id}.txt",
             timeout=10,
-        ).json()
-        uniprot_id = response["rcsb_polymer_entity_container_identifiers"][
-            "uniprot_ids"
-        ][0]
-        return uniprot_id.upper()
-    except (
-        Exception,
-        rq.exceptions.RequestException,
-        rq.exceptions.RequestsWarning,
-        rq.exceptions.RequestsDependencyWarning,
-        rq.exceptions.ConnectTimeout,
-        rq.exceptions.ConnectionError,
-    ):
-        return ""
+        )
+        if response.status_code == 200:
+            content = response.text.split("\n")
+            for line in content:
+                if "GeneID;" in line:
+                    return line.split(";")[1].strip()
+    return ""
 
 
-print(get_uniprot_id("1ux8"))
+for uniprot_id in [
+    "O31607",
+    "P15160",
+    "P15160",
+    "Q08753",
+    "Q08753",
+    "P9WN25",
+    "P9WN25",
+    "P9WN25",
+    "P9WN25",
+    "P9WN25",
+]:
+    print(get_gene_id(uniprot_id))
