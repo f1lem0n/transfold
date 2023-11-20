@@ -3,8 +3,8 @@ from pathlib import Path
 import click
 import yaml
 
-from modules.scopes_parser import get_scope_df
-from modules.downloaders import download_all_protein_sequences
+from modules.scope_parser import get_scope_df
+from modules.downloaders import cds_downloader
 
 
 def read_yaml_file(filepath):
@@ -32,14 +32,9 @@ def run():
 
 
 @cli.command(
-    "get",
+    "download",
     context_settings=dict(ignore_unknown_options=True),
     short_help="Get data for Transfold",
-)
-@click.argument(
-    "data",
-    type=click.Choice(["coding_seq", "protein_seq", "all"]),
-    default="all",
 )
 @click.option(
     "--scope",
@@ -53,13 +48,22 @@ def run():
     default=Path("data/").absolute(),
     help="Path to data output directory",
 )
-def get(data, scope, output):
+@click.option(
+    "--retries",
+    "-r",
+    default=3,
+    help="Number of retries for single HTTP request",
+)
+@click.option(
+    "--timeout",
+    "-t",
+    default=10,
+    help="Timeout for single HTTP request in seconds",
+)
+def download(scope, output, retries, timeout):
     output = Path(output).absolute()
     scope_df = get_scope_df(scope)
-    if data == "protein_seq":
-        download_all_protein_sequences(output, scope_df)
-    if data == "all":
-        download_all_protein_sequences(output, scope_df)
+    cds_downloader(scope_df, output, retries, timeout)
 
 
 if __name__ == "__main__":
