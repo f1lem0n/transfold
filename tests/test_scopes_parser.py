@@ -3,8 +3,8 @@ from pathlib import Path
 from modules.scopes_parser import (
     get_categories,
     get_pdb_ids,
-    get_uniprot_id,
     get_scope_df,
+    get_uniprot_id,
 )
 
 SCOPES_PATH = Path("tests/data/test_scopes.tsv").absolute()
