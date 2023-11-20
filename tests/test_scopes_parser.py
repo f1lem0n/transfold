@@ -3,7 +3,7 @@ from pathlib import Path
 from modules.scopes_parser import (
     get_categories,
     get_pdb_ids,
-    get_protein_sequence,
+    get_uniprot_id,
     get_scope_df,
 )
 
@@ -29,10 +29,7 @@ def test_get_pdb_ids():
     ]
 
 
-def test_get_protein_sequence():
-    assert get_protein_sequence("1ux8") == (
-        "MGQSFNAPYEAIGEELLSQLVDTFYERVASHPLLKPIFPSDLTE"
-        "TARKQKQFLTQYLGGPPLYTEEHGHPMLRARHLPFPITNERADA"
-        "WLSCMKDAMDHVGLEGEIREFLFGRLELTARHMVNQTEAEDRSS"
-    )
-    assert get_protein_sequence("false_pdb_id") == ""
+def test_get_uniprot_id():
+    assert type(get_uniprot_id("1ux8")) == str
+    assert get_uniprot_id("1ux8") == "O31607"
+    assert get_uniprot_id("false_pdb_id") == ""

@@ -33,14 +33,16 @@ def get_pdb_ids(scope_df: pd.DataFrame) -> list[str]:
     return scope_df["pdb_id"].unique().tolist()
 
 
-def get_protein_sequence(pdb_id: str) -> str:
+def get_uniprot_id(pdb_id: str) -> str:
     try:
         response = rq.get(
             "https://data.rcsb.org/rest" f"/v1/core/polymer_entity/{pdb_id}/1",
             timeout=10,
         ).json()
-        sequence = response["entity_poly"]["pdbx_seq_one_letter_code_can"]
-        return sequence.upper()
+        uniprot_id = response["rcsb_polymer_entity_container_identifiers"][
+            "uniprot_ids"
+        ][0]
+        return uniprot_id.upper()
     except (
         Exception,
         rq.exceptions.RequestException,
@@ -50,3 +52,6 @@ def get_protein_sequence(pdb_id: str) -> str:
         rq.exceptions.ConnectionError,
     ):
         return ""
+
+
+print(get_uniprot_id("1ux8"))
