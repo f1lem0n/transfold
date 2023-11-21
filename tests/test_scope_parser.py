@@ -50,8 +50,8 @@ GENE_IDS_FROM_SCOPES = [
     "45425525",
     "45425525",
 ]
-RETRIES = 3
-TIMEOUT = 10
+RETRIES = 5
+TIMEOUT = 15
 
 
 def test_get_category():

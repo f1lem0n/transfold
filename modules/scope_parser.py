@@ -1,3 +1,8 @@
+# Author: Filip Hajdyła
+# Date of creation: 14/11/2023
+# Description: Parser functions to get GeneID from PDB ID,
+#              and category from SCOPe file
+
 from pathlib import Path
 
 import pandas as pd
@@ -35,10 +40,14 @@ def get_category(scope_df: pd.DataFrame, pdb_id: str) -> str:
 
 def get_uniprot_id(pdb_id: str, retries: int, timeout: int) -> str:
     for _ in range(retries):
-        response = rq.get(
-            f"https://data.rcsb.org/rest/v1/core/polymer_entity/{pdb_id}/1",
-            timeout=timeout,
-        )
+        try:
+            response = rq.get(
+                "https://data.rcsb.org/rest/"
+                f"v1/core/polymer_entity/{pdb_id}/1",
+                timeout=timeout,
+            )
+        except Exception:  # pragma: no cover
+            continue
         if response.status_code == 200:
             content = response.json()
             response.close()
@@ -51,10 +60,13 @@ def get_uniprot_id(pdb_id: str, retries: int, timeout: int) -> str:
 
 def get_gene_id(uniprot_id: str, retries: int, timeout: int) -> str:
     for _ in range(retries):
-        response = rq.get(
-            f"https://rest.uniprot.org/uniprotkb/{uniprot_id}.txt",
-            timeout=timeout,
-        )
+        try:
+            response = rq.get(
+                f"https://rest.uniprot.org/uniprotkb/{uniprot_id}.txt",
+                timeout=timeout,
+            )
+        except Exception:  # pragma: no cover
+            continue
         if response.status_code == 200:
             content = response.text.split("\n")
             response.close()

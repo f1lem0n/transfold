@@ -20,7 +20,7 @@ test:
 
 format:
 	@echo "Sorting imports..."
-	@isort --profile black modules/ tests/
+	@isort --profile black -l 79 modules/ tests/
 	@echo "Formatting code..."
 	@black -l 79 -t py312 --safe modules/ tests/
 
@@ -34,5 +34,5 @@ clean:
 		modules/__pycache__ \
 		tests/__pycache__
 	@rm -rf \
-		tests/data/protein_seq/ \
-		tests/data/coding_seq/
+		tests/data/CDS/ \
+		tests/data/temp
