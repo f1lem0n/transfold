@@ -51,9 +51,12 @@ def get_uniprot_id(pdb_id: str, retries: int, timeout: int) -> str:
         if response.status_code == 200:
             content = response.json()
             response.close()
-            uniprot_id = content["rcsb_polymer_entity_container_identifiers"][
-                "uniprot_ids"
-            ][0]
+            try:
+                uniprot_id = content[
+                    "rcsb_polymer_entity_container_identifiers"
+                ]["uniprot_ids"][0]
+            except KeyError:
+                return ""
             return uniprot_id.upper()
     return ""
 

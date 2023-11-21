@@ -1,7 +1,6 @@
 # Custom
-coding_seq/
-protein_seq/
 .vscode/
+CDS/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

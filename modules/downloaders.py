@@ -40,7 +40,9 @@ def cds_downloader(
         # download and unzip data from NCBI
         subprocess.run(
             'curl -X GET "https://api.ncbi.nlm.nih.gov/datasets/v2alpha/gene/'
-            f'id/{gene_id}/download?include_annotation_type=FASTA_GENE"'
+            f"id/{gene_id}/download?include_annotation_type=FASTA_GENE"
+            "&include_annotation_type=FASTA_CDS"
+            '&include_annotation_type=FASTA_RNA"'
             f' -o {str(output / "temp" / pdb_id)}.zip',
             capture_output=True,
             shell=True,
@@ -58,5 +60,6 @@ def cds_downloader(
             copy_function=shutil.copytree,
         )
         # clean up temp folder
-        shutil.rmtree(output / "temp")
+        if (output / "temp").exists():
+            shutil.rmtree(output / "temp")
     return Writeable()
