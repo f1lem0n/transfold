@@ -1,6 +1,7 @@
 import shutil
 import subprocess
 from pathlib import Path
+from zipfile import is_zipfile
 
 from pandas import DataFrame
 from tqdm import tqdm
@@ -24,13 +25,14 @@ def cds_downloader(
 ) -> Writeable:
     pdb_ids = get_pdb_ids(scope_df)
     for pdb_id in tqdm(pdb_ids):
-        # skip if dir already exists or gene_id is not found
+        # skip if dir already exists or uniprot_id or gene_id is not found
         category = get_category(scope_df, pdb_id)
         if (output / "CDS" / category / pdb_id).exists():
             continue
-        gene_id = get_gene_id(
-            get_uniprot_id(pdb_id, retries, timeout), retries, timeout
-        )
+        uniprot_id = get_uniprot_id(pdb_id, retries, timeout)
+        if not uniprot_id:
+            continue
+        gene_id = get_gene_id(uniprot_id, retries, timeout)
         if not gene_id:
             continue
         # if temp folder exists delete it and create a new one
@@ -47,6 +49,8 @@ def cds_downloader(
             capture_output=True,
             shell=True,
         )
+        if not is_zipfile(output / "temp" / pdb_id):
+            continue
         subprocess.run(
             f"unzip {str(output / 'temp' / pdb_id)}.zip -d {output / 'temp'}",
             capture_output=True,

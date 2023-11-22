@@ -55,7 +55,7 @@ def get_uniprot_id(pdb_id: str, retries: int, timeout: int) -> str:
                 uniprot_id = content[
                     "rcsb_polymer_entity_container_identifiers"
                 ]["uniprot_ids"][0]
-            except KeyError:
+            except KeyError:  # pragma: no cover
                 return ""
             return uniprot_id.upper()
     return ""
