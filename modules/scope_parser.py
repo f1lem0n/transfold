@@ -1,5 +1,5 @@
 # Author: Filip Hajdyła
-# Date of creation: 14/11/2023
+# Date of creation: 16/11/2023
 # Description: Parser functions to get GeneID from PDB ID,
 #              and category from SCOPe file
 
