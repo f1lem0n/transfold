@@ -6,7 +6,7 @@ from zipfile import is_zipfile
 from pandas import DataFrame
 from tqdm import tqdm
 
-from modules.scope_parser import (
+from transfold.modules.scope_parser import (
     get_category,
     get_gene_id,
     get_pdb_ids,

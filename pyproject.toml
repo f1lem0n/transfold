@@ -1,0 +1,27 @@
+[project]
+name = "transfold"
+version = "0.1.0"
+authors = [{ name = "Filip Hajdyła", email = "hajdylaf@gmail.com" }]
+description = "A tool to predict protein folding using transcript structure"
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache License 2.0",
+    "Operating System :: Debian 11",
+]
+dependencies = ["click", "numpy", "pandas", "pyyaml", "tqdm", "requests"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["transfold", "transfold.modules"]
+
+[project.scripts]
+transfold = "transfold.transfold:cli"
+
+[project.urls]
+Homepage = "https://github.com/f1lem0n/transfold"
+Issues = "https://github.com/f1lem0n/transfold/issues"

@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from modules.downloaders import Writeable, cds_downloader
-from modules.scope_parser import get_scope_df
+from transfold.modules.downloaders import Writeable, cds_downloader
+from transfold.modules.scope_parser import get_scope_df
 
 SCOPE_PATH = Path("tests/data/test_scope.tsv").absolute()
 PATTERN = ".*"

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from modules.scope_parser import (
+from transfold.modules.scope_parser import (
     get_category,
     get_gene_id,
     get_pdb_ids,

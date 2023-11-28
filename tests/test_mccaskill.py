@@ -1,6 +1,6 @@
 import numpy as np
 
-from modules.mccaskill import (
+from transfold.modules.mccaskill import (
     calc_paired_unpaired_probabilities,
     check_pairing,
     check_sequence,

@@ -3,8 +3,8 @@ from pathlib import Path
 import click
 import yaml
 
-from modules.downloaders import cds_downloader
-from modules.scope_parser import get_scope_df
+from transfold.modules.downloaders import cds_downloader
+from transfold.modules.scope_parser import get_scope_df
 
 
 def read_yaml_file(filepath):
@@ -39,8 +39,8 @@ def run():
 @click.option(
     "--scope",
     "-s",
-    default=Path("data/dir.cla.scope.2.08-stable.tsv").absolute(),
     help="Path to CLA SCOPe tsv file",
+    required=True,
 )
 @click.option(
     "--pattern",
@@ -51,7 +51,7 @@ def run():
 @click.option(
     "--output",
     "-o",
-    default=Path("data/").absolute(),
+    default=Path(".").absolute(),
     help="Path to data output directory",
 )
 @click.option(
