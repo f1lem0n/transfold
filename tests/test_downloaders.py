@@ -24,6 +24,14 @@ def test_cds_downloader():
         assert (
             OUTPUT / "CDS" / "a.1.1.1" / pdb_id / "data" / "data_report.jsonl"
         ).exists()
+        assert (
+            OUTPUT
+            / "CDS"
+            / "a.1.1.1"
+            / pdb_id
+            / "data"
+            / "dataset_catalog.json"
+        ).exists()
     assert not (
         OUTPUT / "CDS" / "a.1.1.2" / "1idr" / "data" / "data_report.jsonl"
     ).exists()

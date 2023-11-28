@@ -3,8 +3,8 @@ from pathlib import Path
 import click
 import yaml
 
-from modules.scope_parser import get_scope_df
 from modules.downloaders import cds_downloader
+from modules.scope_parser import get_scope_df
 
 
 def read_yaml_file(filepath):

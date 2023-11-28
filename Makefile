@@ -22,20 +22,20 @@ test:
 
 format:
 	@echo "Sorting imports..."
-	@isort --profile black -l 79 modules/ tests/
+	@isort --profile black -l 79 modules/ tests/ transfold.py
 	@echo "Formatting code..."
-	@black -l 79 -t py312 --safe modules/ tests/
+	@black -l 79 -t py312 --safe modules/ tests/ transfold.py
 
 lint:
-	@flake8 modules/ tests/
-	@mypy modules/ tests/
+	@flake8 modules/ tests/ transfold.py
+	@mypy modules/ tests/ transfold.py
 
 clean:
 	@rm -rf .coverage .pytest-monitor .pytest_cache .mypy_cache
 	@rm -rf \
+		__pycache__ \
 		modules/__pycache__ \
-		tests/__pycache__
-	@rm -rf \
+		tests/__pycache__ \
 		tests/data/CDS/ \
 		tests/data/temp
 
