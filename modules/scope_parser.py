@@ -9,7 +9,7 @@ import pandas as pd
 import requests as rq
 
 
-def get_scope_df(scope_path: Path) -> pd.DataFrame:
+def get_scope_df(scope_path: Path, pattern: str) -> pd.DataFrame:
     # TODO correct column names
     scope_df = pd.read_table(
         scope_path,
@@ -24,6 +24,13 @@ def get_scope_df(scope_path: Path) -> pd.DataFrame:
             "unknown_params",
         ],
     )
+    scope_df = scope_df[
+        scope_df["category"].str.contains(
+            pattern,
+            regex=True,
+            na=False,
+        )
+    ]
     return scope_df
 
 

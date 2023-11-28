@@ -10,6 +10,7 @@ from modules.scope_parser import (
 
 # do not change this params
 SCOPE_PATH = Path("tests/data/test_scope.tsv").absolute()
+PATTERN = ".*"
 TRUE_PDB_ID = "1ux8"
 FALSE_PDB_ID = "false_pdb_id"
 TRUE_UNIPROT_ID = "O31607"
@@ -55,14 +56,23 @@ TIMEOUT = 15
 
 
 def test_get_category():
-    assert type(get_category(get_scope_df(SCOPE_PATH), TRUE_PDB_ID)) == str
-    assert type(get_category(get_scope_df(SCOPE_PATH), FALSE_PDB_ID)) == str
-    assert get_category(get_scope_df(SCOPE_PATH), TRUE_PDB_ID) == "a.1.1.1"
-    assert get_category(get_scope_df(SCOPE_PATH), FALSE_PDB_ID) == ""
+    assert (
+        type(get_category(get_scope_df(SCOPE_PATH, PATTERN), TRUE_PDB_ID))
+        == str
+    )
+    assert (
+        type(get_category(get_scope_df(SCOPE_PATH, PATTERN), FALSE_PDB_ID))
+        == str
+    )
+    assert (
+        get_category(get_scope_df(SCOPE_PATH, PATTERN), TRUE_PDB_ID)
+        == "a.1.1.1"
+    )
+    assert get_category(get_scope_df(SCOPE_PATH, PATTERN), FALSE_PDB_ID) == ""
 
 
 def test_get_pdb_ids():
-    get_pdb_ids(get_scope_df(SCOPE_PATH)) == PDB_IDS_FROM_SCOPES
+    get_pdb_ids(get_scope_df(SCOPE_PATH, PATTERN)) == PDB_IDS_FROM_SCOPES
 
 
 def test_get_uniprot_id():

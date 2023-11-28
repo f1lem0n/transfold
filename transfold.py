@@ -43,6 +43,12 @@ def run():
     help="Path to CLA SCOPe tsv file",
 )
 @click.option(
+    "--pattern",
+    "-p",
+    default=".*",
+    help="RegExp pattern for SCOPe category",
+)
+@click.option(
     "--output",
     "-o",
     default=Path("data/").absolute(),
@@ -60,9 +66,9 @@ def run():
     default=10,
     help="Timeout for single HTTP request in seconds",
 )
-def download(scope, output, retries, timeout):
+def download(scope, output, pattern, retries, timeout):
     output = Path(output).absolute()
-    scope_df = get_scope_df(scope)
+    scope_df = get_scope_df(scope, pattern)
     cds_downloader(scope_df, output, retries, timeout)
 
 
