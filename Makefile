@@ -2,7 +2,7 @@
 # Date of creation: 15/11/2023
 # Description: Automation of common tasks for the project
 
-.PHONY: help test format lint clean
+.PHONY: help test format lint clean checksum
 
 help:
 	@echo "help - display this help message"
@@ -10,6 +10,8 @@ help:
 	@echo "format - format package with black and isort"
 	@echo "lint - static code analysis with flake8 and mypy"
 	@echo "clean - remove common artifacts from the directory tree"
+	@echo "checksum - generate md5 checksum of the repository"
+	@echo "verify - verify md5 checksum of the repository (if stdout is empty then checksums are equal)"
 
 test:
 	@coverage run -m pytest -x -v --log-level=DEBUG && \
@@ -36,3 +38,34 @@ clean:
 	@rm -rf \
 		tests/data/CDS/ \
 		tests/data/temp
+
+checksum:
+	@find . -type f \
+		\! -path "./.git/*" \
+		\! -path "./data/CDS/*" \
+		\! -path "./data/temp/*" \
+		\! -path "./tests/data/CDS/*" \
+		\! -path "./tests/data/temp/*" \
+		\! -path "./.pytest_cache/*" \
+		\! -path "./.mypy_cache/*" \
+		\! -path "./.pytest-monitor/*" \
+		\! -path "./.coverage" \
+		\! -path "./checksum.md5" \
+		\! -path "*__pycache__*" \
+		-exec md5sum {} \; | sort -k 2 | md5sum > checksum.md5
+
+verify:
+	@echo "Verifying repo checksum..."
+	@find . -type f \
+		\! -path "./.git/*" \
+		\! -path "./data/CDS/*" \
+		\! -path "./data/temp/*" \
+		\! -path "./tests/data/CDS/*" \
+		\! -path "./tests/data/temp/*" \
+		\! -path "./.pytest_cache/*" \
+		\! -path "./.mypy_cache/*" \
+		\! -path "./.pytest-monitor/*" \
+		\! -path "./.coverage" \
+		\! -path "./checksum.md5" \
+		\! -path "*__pycache__*" \
+		-exec md5sum {} \; | sort -k 2 | md5sum | diff - checksum.md5
