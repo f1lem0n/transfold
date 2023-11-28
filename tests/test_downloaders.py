@@ -1,4 +1,3 @@
-import shutil
 from pathlib import Path
 
 from modules.downloaders import Writeable, cds_downloader
@@ -20,11 +19,11 @@ def test_cds_downloader():
         )
         == Writeable
     )
+    cds_downloader(scope_df, OUTPUT, retries=RETRIES, timeout=TIMEOUT)
     for pdb_id in ["1ux8", "2gkm", "2gl3"]:
         assert (
-            OUTPUT / "CDS" / "a.1.1.1" / pdb_id / "data" / "gene.fna"
+            OUTPUT / "CDS" / "a.1.1.1" / pdb_id / "data" / "data_report.jsonl"
         ).exists()
     assert not (
-        OUTPUT / "CDS" / "a.1.1.2" / "1idr" / "data" / "gene.fna"
+        OUTPUT / "CDS" / "a.1.1.2" / "1idr" / "data" / "data_report.jsonl"
     ).exists()
-    shutil.rmtree(OUTPUT / "CDS")

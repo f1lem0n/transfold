@@ -49,7 +49,9 @@ def cds_downloader(
             capture_output=True,
             shell=True,
         )
-        if not is_zipfile(output / "temp" / pdb_id):
+        if not is_zipfile(
+            f"{output / 'temp' / pdb_id}.zip"
+        ):  # pragma: no cover
             continue
         subprocess.run(
             f"unzip {str(output / 'temp' / pdb_id)}.zip -d {output / 'temp'}",

@@ -18,7 +18,7 @@ test:
 		echo "" && \
 		echo "COVERAGE REPORT:" && \
 		echo "" && \
-		coverage report -m;\
+		coverage report -m;
 
 format:
 	@echo "Sorting imports..."
@@ -42,6 +42,7 @@ clean:
 checksum:
 	@echo "Generating repository checksum..."
 	@find . -type f \
+		\! -path "./.vscode/*" \
 		\! -path "./.git/*" \
 		\! -path "./data/CDS/*" \
 		\! -path "./data/temp/*" \
@@ -51,14 +52,15 @@ checksum:
 		\! -path "./.mypy_cache/*" \
 		\! -path "./.pytest-monitor/*" \
 		\! -path "./.coverage" \
-		\! -path "./checksum.md5" \
+		\! -path "./transfold.md5" \
 		\! -path "*__pycache__*" \
-		-exec md5sum {} \; | sort -k 2 | md5sum > checksum.md5
+		-exec md5sum {} \; | sort -k 2 | md5sum > transfold.md5
 	@echo "Checksum generated!"
 
 verify:
 	@echo "Verifying repository checksum..."
 	@find . -type f \
+		\! -path "./.vscode/*" \
 		\! -path "./.git/*" \
 		\! -path "./data/CDS/*" \
 		\! -path "./data/temp/*" \
@@ -68,7 +70,7 @@ verify:
 		\! -path "./.mypy_cache/*" \
 		\! -path "./.pytest-monitor/*" \
 		\! -path "./.coverage" \
-		\! -path "./checksum.md5" \
+		\! -path "./transfold.md5" \
 		\! -path "*__pycache__*" \
-		-exec md5sum {} \; | sort -k 2 | md5sum | diff - checksum.md5
+		-exec md5sum {} \; | sort -k 2 | md5sum | diff - transfold.md5
 	@echo "Checksums are equal!"
