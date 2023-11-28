@@ -2,7 +2,7 @@
 # Date of creation: 15/11/2023
 # Description: Automation of common tasks for the project
 
-.PHONY: help test format lint clean checksum
+.PHONY: help test format lint clean checksum verify
 
 help:
 	@echo "help - display this help message"
@@ -40,6 +40,7 @@ clean:
 		tests/data/temp
 
 checksum:
+	@echo "Generating repository checksum..."
 	@find . -type f \
 		\! -path "./.git/*" \
 		\! -path "./data/CDS/*" \
@@ -53,9 +54,10 @@ checksum:
 		\! -path "./checksum.md5" \
 		\! -path "*__pycache__*" \
 		-exec md5sum {} \; | sort -k 2 | md5sum > checksum.md5
+	@echo "Checksum generated!"
 
 verify:
-	@echo "Verifying repo checksum..."
+	@echo "Verifying repository checksum..."
 	@find . -type f \
 		\! -path "./.git/*" \
 		\! -path "./data/CDS/*" \
@@ -69,3 +71,4 @@ verify:
 		\! -path "./checksum.md5" \
 		\! -path "*__pycache__*" \
 		-exec md5sum {} \; | sort -k 2 | md5sum | diff - checksum.md5
+	@echo "Checksums are equal!"
