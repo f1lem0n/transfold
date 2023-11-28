@@ -100,4 +100,3 @@ install:
 	@source transfold-test-venv/bin/activate && \
 		pip install dist/transfold-0.1.0-py3-none-any.whl && \
 		deactivate
-	@source transfold-test-venv/bin/activate
