@@ -22,7 +22,7 @@ help:
 	@echo "install - build and install current development version in a virtual environment"
 
 test:
-	@time coverage run -m pytest -x -v --log-level=DEBUG && \
+	@time coverage run -m pytest -sxv --log-level=DEBUG && \
 		echo "" && \
 		echo "COVERAGE REPORT:" && \
 		echo "" && \
@@ -60,6 +60,7 @@ checksum:
 		\! -path "./data/temp/*" \
 		\! -path "./tests/data/CDS/*" \
 		\! -path "./tests/data/temp/*" \
+		\! -path "./tests/logs/*" \
 		\! -path "./.pytest_cache/*" \
 		\! -path "./.mypy_cache/*" \
 		\! -path "./.pytest-monitor/*" \
@@ -81,6 +82,7 @@ diff:
 		\! -path "./data/temp/*" \
 		\! -path "./tests/data/CDS/*" \
 		\! -path "./tests/data/temp/*" \
+		\! -path "./tests/logs/*" \
 		\! -path "./.pytest_cache/*" \
 		\! -path "./.mypy_cache/*" \
 		\! -path "./.pytest-monitor/*" \

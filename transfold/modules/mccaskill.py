@@ -3,22 +3,37 @@
 # Description: Implementation of simplified McCaskill algorithm
 #              for RNA secondary structure prediction
 
+from pathlib import Path
+
 import numpy as np
 
+from transfold.modules.logger import get_logger
 
-def check_sequence(seq: str) -> bool:
+
+def check_sequence(seq: str, logs_path: Path) -> bool:
+    logger = get_logger(logs_path, f"{__name__}.check_sequence")
+    logger.info("Checking sequence")
     allowed_bases = ["A", "U", "G", "C"]
+    logger.debug(f"Allowed bases: {allowed_bases}")
     for base in seq:
+        logger.debug(f"Checking base: {base}")
         if base not in allowed_bases:
+            logger.critical("Sequence is not valid")
             return False
+    logger.info("Sequence is valid")
     return True
 
 
-def check_pairing(base1: str, base2: str) -> bool:
+def check_pairing(base1: str, base2: str, logs_path: Path) -> bool:
+    logger = get_logger(logs_path, f"{__name__}.check_pairing")
     pairing_bases = [("A", "U"), ("G", "C"), ("G", "U")]
+    logger.info(f"Allowed pairs: {pairing_bases}")
+    logger.debug(f"Checking pair {base1}-{base2}")
     if (base1, base2) in pairing_bases or (base2, base1) in pairing_bases:
+        logger.info("TRUE\n")
         return True
     else:
+        logger.info("FALSE\n")
         return False
 
 
@@ -28,12 +43,22 @@ def create_scoring_tables(
     bp_energy_weight: int,
     normalized_rt: int,
     min_loop_length: int,
+    logs_path: Path,
 ) -> tuple[np.ndarray, np.ndarray]:
-    # TODO define equation for iters if possible
+    logger = get_logger(logs_path, f"{__name__}.create_scoring_tables")
+    logger.info(f"Creating scoring tables for seq: {seq}")
+    logger.info(
+        "PARAMS:\n"
+        f"\n\titers: {iters}\n"
+        f"\tbp_energy_weight: {bp_energy_weight}\n"
+        f"\tnormalized_rt: {normalized_rt}\n"
+        f"\tmin_loop_length: {min_loop_length}\n"
+    )
     n = len(seq) + 1
     q_paired = np.zeros((n, n))
     q_unpaired = np.ones((n, n))
-    for _ in range(iters):
+    for iteration in range(iters):
+        logger.debug(f"Iteration: {iteration + 1}")
         for i, j in np.ndindex(q_unpaired.shape):
             # 1-based indexing and skipping fields below diagonal
             if j == 0 or i == 0 or i > j:
@@ -41,13 +66,15 @@ def create_scoring_tables(
             q_paired[i][j] = (
                 q_unpaired[i + 1][j - 1]
                 * np.exp(-bp_energy_weight / normalized_rt)
-                if check_pairing(seq[i - 1], seq[j - 1])
+                if check_pairing(seq[i - 1], seq[j - 1], logs_path)
                 else 0
             )
             ks = [k for k in range(i, j) if i <= k < j - min_loop_length]
             q_unpaired[i][j] = q_unpaired[i][j - 1] + sum(
                 q_unpaired[i][k - 1] * q_paired[k][j] for k in ks
             )
+        logger.debug(f"q_paired:\n{q_paired.shape}\t{q_paired.tolist()}\n")
+        logger.debug(f"q_unpaired:\n{q_paired.shape}\t{q_unpaired.tolist()}\n")
     q_unpaired.astype(np.float64)
     q_paired.astype(np.float64)
     return q_unpaired, q_paired
@@ -59,10 +86,22 @@ def calc_paired_unpaired_probabilities(
     iters,
     bp_energy_weight: int,
     normalized_rt: int,
+    logs_path: Path,
 ) -> tuple[np.ndarray, np.ndarray]:
+    logger = get_logger(
+        logs_path, f"{__name__}.calc_paired_unpaired_probabilities"
+    )
+    logger.info(
+        "PARAMS:\n"
+        f"\n\titers: {iters}\n"
+        f"\tbp_energy_weight: {bp_energy_weight}\n"
+        f"\tnormalized_rt: {normalized_rt}\n"
+    )
+    logger.info("Calculating paired and unpaired probabilities")
     p_paired = np.zeros(qbp.shape)
     p_unpaired = np.zeros(q.shape)
-    for _ in range(iters):
+    for iteration in range(iters):
+        logger.debug(f"Iteration: {iteration + 1}")
         for i, j in np.ndindex(p_unpaired.shape):
             # 1-based indexing and skipping fields below diagonal
             if j == 0 or i == 0 or i > j:
@@ -100,4 +139,6 @@ def calc_paired_unpaired_probabilities(
                 )
             except IndexError:
                 pass
+        logger.debug(f"p_paired:\n{p_paired.shape}\t{p_paired.tolist()}\n")
+        logger.debug(f"p_unpaired:\n{p_paired.shape}\t{p_unpaired.tolist()}\n")
     return p_unpaired[1:, 1:], p_paired[1:, 1:]

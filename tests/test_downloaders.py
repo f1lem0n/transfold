@@ -1,5 +1,5 @@
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 from transfold.modules.downloaders import Writeable, cds_downloader
 from transfold.modules.scope_parser import get_scope_df
