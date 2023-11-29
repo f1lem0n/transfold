@@ -30,13 +30,13 @@ test:
 
 format:
 	@echo "Sorting imports..."
-	@isort --profile black -l 79 transfold/ tests/
+	@isort --profile black -l 79 transfold/ tests/ setup.py
 	@echo "Formatting code..."
-	@black -l 79 -t py312 --safe transfold/ tests/
+	@black -l 79 -t py312 --safe transfold/ tests/ setup.py
 
 lint:
-	@flake8 transfold/ tests/
-	@mypy transfold/ tests/
+	@flake8 transfold/ tests/ setup.py
+	@mypy transfold/ tests/ setup.py
 
 clean:
 	@rm -rf .coverage .pytest-monitor .pytest_cache .mypy_cache
@@ -64,11 +64,11 @@ checksum:
 		\! -path "./.pytest-monitor/*" \
 		\! -path "./.coverage" \
 		\! -path "*__pycache__*" \
-		\! -path "./transfold.md5" \
+		\! -path "./.checksum.md5" \
 		\! -path "./transfold-test-venv/*" \
 		\! -path "./transfold.egg-info/*" \
 		\! -path "./dist/*" \
-		-exec md5sum {} \; | sort -k 2 | md5sum > transfold.md5
+		-exec md5sum {} \; | sort -k 2 | md5sum > .checksum.md5
 	@echo "Checksum generated!"
 
 verify:
@@ -85,11 +85,11 @@ verify:
 		\! -path "./.pytest-monitor/*" \
 		\! -path "./.coverage" \
 		\! -path "*__pycache__*" \
-		\! -path "./transfold.md5" \
+		\! -path "./.checksum.md5" \
 		\! -path "./transfold-test-venv/*" \
 		\! -path "./transfold.egg-info/*" \
 		\! -path "./dist/*" \
-		-exec md5sum {} \; | sort -k 2 | md5sum | diff - transfold.md5
+		-exec md5sum {} \; | sort -k 2 | md5sum | diff - .checksum.md5
 	@echo "Checksums are equal!"
 
 install:

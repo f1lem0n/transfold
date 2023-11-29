@@ -3,6 +3,7 @@ from pathlib import Path
 import click
 import yaml
 
+from transfold._version import __version__
 from transfold.modules.downloaders import cds_downloader
 from transfold.modules.scope_parser import get_scope_df
 
@@ -15,11 +16,21 @@ def read_yaml_file(filepath):
             print(e)
 
 
-@click.group(context_settings=dict(help_option_names=["-h", "--help"]))
-def cli():
+@click.group(
+    context_settings=dict(help_option_names=["-h", "--help"]),
+    invoke_without_command=True,
+    no_args_is_help=True,
+)
+@click.option("--version", "-v", is_flag=True, help="Show version")
+def cli(version):
     """
-    Transfold
+    T R A N S F O L D
+
+    A tool for predicting fold category based on transcript sequence
+    and structure.
     """
+    if version:
+        print(f"transfold version: {__version__}")
 
 
 @cli.command(
@@ -34,7 +45,7 @@ def run():
 @cli.command(
     "download",
     context_settings=dict(ignore_unknown_options=True),
-    short_help="Get data for Transfold",
+    short_help="Download Transfold Database",
 )
 @click.option(
     "--scope",
