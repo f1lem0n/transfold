@@ -60,6 +60,6 @@ Commands:
    lint - static code analysis with flake8 and mypy
    clean - remove common artifacts from the directory tree as well as built and installed package
    checksum - generate md5 checksum of the repository
-   verify - verify md5 checksum of the repository (if stdout is empty then checksums are equal)
+   diff - verify md5 checksum of the repository (if stdout is empty then checksums are equal)
    install - build and install current development version in a virtual environment
    ```
