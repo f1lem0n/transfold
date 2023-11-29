@@ -3,15 +3,12 @@
 # Description: Implementation of simplified McCaskill algorithm
 #              for RNA secondary structure prediction
 
-from pathlib import Path
+import logging
 
 import numpy as np
 
-from transfold.modules.logger import get_logger
 
-
-def check_sequence(seq: str, logs_path: Path) -> bool:
-    logger = get_logger(logs_path, f"{__name__}.check_sequence")
+def check_sequence(seq: str, logger: logging.Logger) -> bool:
     logger.info("Checking sequence")
     allowed_bases = ["A", "U", "G", "C"]
     logger.debug(f"Allowed bases: {allowed_bases}")
@@ -24,16 +21,13 @@ def check_sequence(seq: str, logs_path: Path) -> bool:
     return True
 
 
-def check_pairing(base1: str, base2: str, logs_path: Path) -> bool:
-    logger = get_logger(logs_path, f"{__name__}.check_pairing")
+def check_pairing(base1: str, base2: str, logger: logging.Logger) -> bool:
     pairing_bases = [("A", "U"), ("G", "C"), ("G", "U")]
-    logger.info(f"Allowed pairs: {pairing_bases}")
-    logger.debug(f"Checking pair {base1}-{base2}")
     if (base1, base2) in pairing_bases or (base2, base1) in pairing_bases:
-        logger.info("TRUE\n")
+        logger.debug(f"Checking pair {base1}-{base2}: TRUE")
         return True
     else:
-        logger.info("FALSE\n")
+        logger.debug(f"Checking pair {base1}-{base2}: FALSE")
         return False
 
 
@@ -43,9 +37,8 @@ def create_scoring_tables(
     bp_energy_weight: int,
     normalized_rt: int,
     min_loop_length: int,
-    logs_path: Path,
+    logger: logging.Logger,
 ) -> tuple[np.ndarray, np.ndarray]:
-    logger = get_logger(logs_path, f"{__name__}.create_scoring_tables")
     logger.info(f"Creating scoring tables for seq: {seq}")
     logger.info(
         "PARAMS:\n"
@@ -66,7 +59,7 @@ def create_scoring_tables(
             q_paired[i][j] = (
                 q_unpaired[i + 1][j - 1]
                 * np.exp(-bp_energy_weight / normalized_rt)
-                if check_pairing(seq[i - 1], seq[j - 1], logs_path)
+                if check_pairing(seq[i - 1], seq[j - 1], logger)
                 else 0
             )
             ks = [k for k in range(i, j) if i <= k < j - min_loop_length]
@@ -86,11 +79,8 @@ def calc_paired_unpaired_probabilities(
     iters,
     bp_energy_weight: int,
     normalized_rt: int,
-    logs_path: Path,
+    logger: logging.Logger,
 ) -> tuple[np.ndarray, np.ndarray]:
-    logger = get_logger(
-        logs_path, f"{__name__}.calc_paired_unpaired_probabilities"
-    )
     logger.info(
         "PARAMS:\n"
         f"\n\titers: {iters}\n"

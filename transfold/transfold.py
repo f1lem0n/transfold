@@ -1,4 +1,5 @@
 from pathlib import Path
+from time import localtime, strftime
 
 import click
 import yaml
@@ -6,6 +7,7 @@ import yaml
 from transfold._version import __version__
 from transfold.modules.downloaders import cds_downloader
 from transfold.modules.scope_parser import get_scope_df
+from transfold.modules.logger import get_logger
 
 
 def read_yaml_file(filepath):
@@ -68,6 +70,12 @@ def run():
     help="Path to data output directory",
 )
 @click.option(
+    "--log",
+    "-l",
+    default=Path(".").absolute() / "logs",
+    help="Path to logs output directory",
+)
+@click.option(
     "--retries",
     "-r",
     default=3,
@@ -79,7 +87,9 @@ def run():
     default=10,
     help="Timeout for single HTTP request in seconds",
 )
-def download(scope, output, pattern, retries, timeout):
+def download(scope, pattern, output, log, retries, timeout):
+    start_time = strftime(r"%Y-%m-%d_%H%M%S", localtime())
+    logger = get_logger(log, "download", "download")
     output = Path(output).absolute()
     scope_df = get_scope_df(scope, pattern)
     cds_downloader(scope_df, output, retries, timeout)
