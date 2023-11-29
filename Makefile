@@ -18,7 +18,7 @@ help:
 	@echo "lint - static code analysis with flake8 and mypy"
 	@echo "clean - remove common artifacts from the directory tree as well as built and installed package"
 	@echo "checksum - generate md5 checksum of the repository"
-	@echo "verify - verify md5 checksum of the repository (if stdout is empty then checksums are equal)"
+	@echo "diff - verify md5 checksum of the repository (if stdout is empty then checksums are equal)"
 	@echo "install - build and install current development version in a virtual environment"
 
 test:
@@ -71,7 +71,7 @@ checksum:
 		-exec md5sum {} \; | sort -k 2 | md5sum > .checksum.md5
 	@echo "Checksum generated!"
 
-verify:
+diff:
 	@echo "Verifying repository checksum..."
 	@find . -type f \
 		\! -path "./.vscode/*" \
