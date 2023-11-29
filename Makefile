@@ -22,7 +22,7 @@ help:
 	@echo "install - build and install current development version in a virtual environment"
 
 test:
-	@coverage run -m pytest -x -v --log-level=DEBUG && \
+	@time coverage run -m pytest -x -v --log-level=DEBUG && \
 		echo "" && \
 		echo "COVERAGE REPORT:" && \
 		echo "" && \
@@ -46,6 +46,7 @@ clean:
 		tests/__pycache__ \
 		tests/data/CDS/ \
 		tests/data/temp \
+		tests/logs/ \
 		transfold-test-venv/ \
 		transfold.egg-info/ \
 		dist/
