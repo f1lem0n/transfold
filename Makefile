@@ -16,10 +16,10 @@ help:
 	@echo "test - measure code coverage with pytest"
 	@echo "format - format package with black and isort"
 	@echo "lint - static code analysis with flake8 and mypy"
-	@echo "clean - remove common artifacts from the directory tree"
+	@echo "clean - remove common artifacts from the directory tree as well as built and installed package"
 	@echo "checksum - generate md5 checksum of the repository"
 	@echo "verify - verify md5 checksum of the repository (if stdout is empty then checksums are equal)"
-	@echo "build - build python package"
+	@echo "install - build and install current development version in a virtual environment"
 
 test:
 	@coverage run -m pytest -x -v --log-level=DEBUG && \
@@ -100,3 +100,8 @@ install:
 	@source transfold-test-venv/bin/activate && \
 		pip install dist/transfold-*.whl && \
 		deactivate
+	@echo
+	@echo "PACKAGE INSTALLED!"
+	@echo "To use, first activate venv:"
+	@echo
+	@echo "	source transfold-test-venv/bin/activate"
