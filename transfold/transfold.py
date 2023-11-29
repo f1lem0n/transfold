@@ -39,8 +39,10 @@ def run():
 @click.option(
     "--scope",
     "-s",
+    default=Path(__file__).parent.absolute()
+    / "data"
+    / "dir.cla.scope.2.08-stable.tsv",
     help="Path to CLA SCOPe tsv file",
-    required=True,
 )
 @click.option(
     "--pattern",
@@ -51,7 +53,7 @@ def run():
 @click.option(
     "--output",
     "-o",
-    default=Path(".").absolute(),
+    default=Path(__file__).parent.absolute() / "data",
     help="Path to data output directory",
 )
 @click.option(

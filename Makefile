@@ -98,5 +98,5 @@ install:
 	@echo "INSTALLING PACKAGE IN VENV..."
 	@python3 -m venv transfold-test-venv
 	@source transfold-test-venv/bin/activate && \
-		pip install dist/transfold-0.1.0-py3-none-any.whl && \
+		pip install dist/transfold-*.whl && \
 		deactivate

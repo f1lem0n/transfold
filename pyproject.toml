@@ -12,16 +12,19 @@ classifiers = [
 ]
 dependencies = ["click", "numpy", "pandas", "pyyaml", "tqdm", "requests"]
 
+[project.urls]
+Homepage = "https://github.com/f1lem0n/transfold"
+Issues = "https://github.com/f1lem0n/transfold/issues"
+
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["transfold", "transfold.modules"]
+packages = ["transfold", "transfold.modules", "transfold.data"]
 
 [project.scripts]
 transfold = "transfold.transfold:cli"
 
-[project.urls]
-Homepage = "https://github.com/f1lem0n/transfold"
-Issues = "https://github.com/f1lem0n/transfold/issues"
+[tool.setuptools.package-data]
+transfold = ["data/*.tsv"]
