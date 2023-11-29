@@ -9,8 +9,6 @@ LOGGER_NAME = "test_logger"
 
 
 def test_logger_file_handler():
-    if not LOGS_PATH.exists():
-        LOGS_PATH.mkdir(parents=True)
     logger = get_logger(LOGS_PATH, LOGGER_NAME)
     logfile = (
         LOGS_PATH
@@ -58,3 +56,4 @@ def test_logger_console_handler(capsys):
         "CRITICAL",
         "This is a critical error\n",
     ]
+    shutil.rmtree(LOGS_PATH)

@@ -1,4 +1,5 @@
 from pathlib import Path
+import shutil
 
 from transfold.modules.downloaders import Writeable, cds_downloader
 from transfold.modules.scope_parser import get_scope_df
@@ -36,3 +37,7 @@ def test_cds_downloader():
     assert not (
         OUTPUT / "CDS" / "a.1.1.2" / "1idr" / "data" / "data_report.jsonl"
     ).exists()
+    if (OUTPUT / "CDS").exists():  # pragma: no cover
+        shutil.rmtree(OUTPUT / "CDS")
+    if (OUTPUT / "temp").exists():  # pragma: no cover
+        shutil.rmtree(OUTPUT / "temp")

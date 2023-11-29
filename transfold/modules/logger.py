@@ -4,6 +4,9 @@ from time import localtime, strftime
 
 
 def get_logger(prefix: Path, name: str) -> logging.Logger:
+    if not prefix.exists():
+        prefix.mkdir(parents=True)
+
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
 
