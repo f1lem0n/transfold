@@ -1,3 +1,4 @@
+import logging
 import shutil
 import subprocess
 from pathlib import Path
@@ -21,19 +22,27 @@ class Writeable:  # pragma: no cover
 
 
 def cds_downloader(
-    scope_df: DataFrame, output: Path, retries: int, timeout: int
+    scope_df: DataFrame,
+    output: Path,
+    retries: int,
+    timeout: int,
+    logger: logging.Logger,
 ) -> Writeable:
-    pdb_ids = get_pdb_ids(scope_df)
+    pdb_ids = get_pdb_ids(scope_df, logger)
+    logger.info(f"Downloading CDS data at: {output}")
     for pdb_id in tqdm(pdb_ids):
         # skip if dir already exists or uniprot_id or gene_id is not found
-        category = get_category(scope_df, pdb_id)
+        category = get_category(scope_df, pdb_id, logger)
         if (output / "CDS" / category / pdb_id).exists():
+            logger.debug(f"Skipping {pdb_id}. CDS data present")
             continue
-        uniprot_id = get_uniprot_id(pdb_id, retries, timeout)
+        uniprot_id = get_uniprot_id(pdb_id, retries, timeout, logger)
         if not uniprot_id:
+            logger.debug(f"Skipping {pdb_id}")
             continue
-        gene_id = get_gene_id(uniprot_id, retries, timeout)
+        gene_id = get_gene_id(uniprot_id, retries, timeout, logger)
         if not gene_id:
+            logger.debug(f"Skipping {pdb_id}")
             continue
         # if temp folder exists delete it and create a new one
         if (output / "temp").exists():

@@ -3,13 +3,13 @@ from time import localtime, strftime
 
 import numpy as np
 
+from transfold.modules.logger import get_logger
 from transfold.modules.mccaskill import (
     calc_paired_unpaired_probabilities,
     check_pairing,
     check_sequence,
     create_scoring_tables,
 )
-from transfold.modules.logger import get_logger
 
 # do not change these params
 MIN_LOOP_LENGTH = 1
@@ -18,29 +18,27 @@ NORMALIZED_RT = 1
 VALID_SEQ = "GGUCCAC"
 INVALID_SEQ = "GGTCCACZ"
 LOGS_PATH = Path("tests/logs").absolute()
-LOGGER = get_logger(
-    LOGS_PATH,
-    "test_mccaskill",
-    strftime("%Y-%m-%d_%H%M%S", localtime()),
-)
+
+start_time = strftime("%Y-%m-%d_%H%M%S", localtime())
+logger = get_logger(LOGS_PATH, "test_mccaskill", start_time)
 
 
 def test_check_sequence():
-    assert check_sequence(VALID_SEQ, LOGGER) is True
-    assert check_sequence(INVALID_SEQ, LOGGER) is False
+    assert check_sequence(VALID_SEQ, logger) is True
+    assert check_sequence(INVALID_SEQ, logger) is False
 
 
 def test_check_pairing():
-    assert type(check_pairing("A", "U", LOGGER)) == bool
-    assert check_pairing("A", "U", LOGGER) is True
-    assert check_pairing("U", "U", LOGGER) is False
-    assert check_pairing("G", "U", LOGGER) is True
-    assert check_pairing("C", "U", LOGGER) is False
-    assert check_pairing("A", "C", LOGGER) is False
-    assert check_pairing("G", "C", LOGGER) is True
-    assert check_pairing("C", "C", LOGGER) is False
-    assert check_pairing("A", "G", LOGGER) is False
-    assert check_pairing("A", "A", LOGGER) is False
+    assert type(check_pairing("A", "U", logger)) == bool
+    assert check_pairing("A", "U", logger) is True
+    assert check_pairing("U", "U", logger) is False
+    assert check_pairing("G", "U", logger) is True
+    assert check_pairing("C", "U", logger) is False
+    assert check_pairing("A", "C", logger) is False
+    assert check_pairing("G", "C", logger) is True
+    assert check_pairing("C", "C", logger) is False
+    assert check_pairing("A", "G", logger) is False
+    assert check_pairing("A", "A", logger) is False
 
 
 def test_create_scoring_tables():
@@ -52,7 +50,7 @@ def test_create_scoring_tables():
                 BP_ENERGY_WEIGHT,
                 NORMALIZED_RT,
                 MIN_LOOP_LENGTH,
-                LOGGER,
+                logger,
             )
         )
         == tuple
@@ -65,7 +63,7 @@ def test_create_scoring_tables():
                 BP_ENERGY_WEIGHT,
                 NORMALIZED_RT,
                 MIN_LOOP_LENGTH,
-                LOGGER,
+                logger,
             )[0]
         )
         == np.ndarray
@@ -78,7 +76,7 @@ def test_create_scoring_tables():
                 BP_ENERGY_WEIGHT,
                 NORMALIZED_RT,
                 MIN_LOOP_LENGTH,
-                LOGGER,
+                logger,
             )[1]
         )
         == np.ndarray
@@ -89,7 +87,7 @@ def test_create_scoring_tables():
         BP_ENERGY_WEIGHT,
         NORMALIZED_RT,
         MIN_LOOP_LENGTH,
-        LOGGER,
+        logger,
     )[0].shape == (8, 8)
     assert create_scoring_tables(
         VALID_SEQ,
@@ -97,7 +95,7 @@ def test_create_scoring_tables():
         BP_ENERGY_WEIGHT,
         NORMALIZED_RT,
         MIN_LOOP_LENGTH,
-        LOGGER,
+        logger,
     )[1].shape == (8, 8)
     # TODO correct these tables
     create_scoring_tables(
@@ -106,7 +104,7 @@ def test_create_scoring_tables():
         BP_ENERGY_WEIGHT,
         NORMALIZED_RT,
         MIN_LOOP_LENGTH,
-        LOGGER,
+        logger,
     )[0].round(2) == np.array(
         [
             [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
@@ -125,7 +123,7 @@ def test_create_scoring_tables():
         BP_ENERGY_WEIGHT,
         NORMALIZED_RT,
         MIN_LOOP_LENGTH,
-        LOGGER,
+        logger,
     )[1].round(2) == np.array(
         [
             [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
@@ -150,12 +148,12 @@ def test_calc_paired_unpaired_probabilities():
                     BP_ENERGY_WEIGHT,
                     NORMALIZED_RT,
                     MIN_LOOP_LENGTH,
-                    LOGGER,
+                    logger,
                 ),
                 3,
                 BP_ENERGY_WEIGHT,
                 NORMALIZED_RT,
-                LOGGER,
+                logger,
             )
         )
         == tuple
@@ -169,12 +167,12 @@ def test_calc_paired_unpaired_probabilities():
                     BP_ENERGY_WEIGHT,
                     NORMALIZED_RT,
                     MIN_LOOP_LENGTH,
-                    LOGGER,
+                    logger,
                 ),
                 3,
                 BP_ENERGY_WEIGHT,
                 NORMALIZED_RT,
-                LOGGER,
+                logger,
             )[0]
         )
         == np.ndarray
@@ -188,12 +186,12 @@ def test_calc_paired_unpaired_probabilities():
                     BP_ENERGY_WEIGHT,
                     NORMALIZED_RT,
                     MIN_LOOP_LENGTH,
-                    LOGGER,
+                    logger,
                 ),
                 3,
                 BP_ENERGY_WEIGHT,
                 NORMALIZED_RT,
-                LOGGER,
+                logger,
             )[1]
         )
         == np.ndarray
@@ -205,12 +203,12 @@ def test_calc_paired_unpaired_probabilities():
             BP_ENERGY_WEIGHT,
             NORMALIZED_RT,
             MIN_LOOP_LENGTH,
-            LOGGER,
+            logger,
         ),
         3,
         BP_ENERGY_WEIGHT,
         NORMALIZED_RT,
-        LOGGER,
+        logger,
     )[0].shape == (7, 7)
     assert calc_paired_unpaired_probabilities(
         *create_scoring_tables(
@@ -219,12 +217,12 @@ def test_calc_paired_unpaired_probabilities():
             BP_ENERGY_WEIGHT,
             NORMALIZED_RT,
             MIN_LOOP_LENGTH,
-            LOGGER,
+            logger,
         ),
         3,
         BP_ENERGY_WEIGHT,
         NORMALIZED_RT,
-        LOGGER,
+        logger,
     )[1].shape == (7, 7)
     # TODO correct these tables
     calc_paired_unpaired_probabilities(
@@ -234,12 +232,12 @@ def test_calc_paired_unpaired_probabilities():
             BP_ENERGY_WEIGHT,
             NORMALIZED_RT,
             MIN_LOOP_LENGTH,
-            LOGGER,
+            logger,
         ),
         3,
         BP_ENERGY_WEIGHT,
         NORMALIZED_RT,
-        LOGGER,
+        logger,
     )[0] == np.array(
         [
             [0.32, 0.06, 0.02, 0.02, 0.02, 0.02, 0.0],
@@ -258,12 +256,12 @@ def test_calc_paired_unpaired_probabilities():
             BP_ENERGY_WEIGHT,
             NORMALIZED_RT,
             MIN_LOOP_LENGTH,
-            LOGGER,
+            logger,
         ),
         3,
         BP_ENERGY_WEIGHT,
         NORMALIZED_RT,
-        LOGGER,
+        logger,
     )[1] == np.array(
         [
             [0.0, 0.0, 0.05, 0.05, 0.17, 0.0, 0.0],

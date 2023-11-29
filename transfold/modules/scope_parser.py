@@ -3,14 +3,17 @@
 # Description: Parser functions to get GeneID from PDB ID,
 #              and category from SCOPe file
 
+import logging
 from pathlib import Path
 
 import pandas as pd
 import requests as rq
 
 
-def get_scope_df(scope_path: Path, pattern: str) -> pd.DataFrame:
-    # TODO correct column names
+def get_scope_df(
+    scope_path: Path, pattern: str, logger: logging.Logger
+) -> pd.DataFrame:
+    logger.info(f"Reading SCOPe file: {scope_path}")
     scope_df = pd.read_table(
         scope_path,
         sep="\t",
@@ -20,10 +23,11 @@ def get_scope_df(scope_path: Path, pattern: str) -> pd.DataFrame:
             "pdb_id",
             "chain",
             "category",
-            "unknown_int",
-            "unknown_params",
+            "NA1",
+            "NA2",
         ],
     )
+    logger.info(f"Filtering SCOPe file by category pattern: {pattern}")
     scope_df = scope_df[
         scope_df["category"].str.contains(
             pattern,
@@ -34,18 +38,27 @@ def get_scope_df(scope_path: Path, pattern: str) -> pd.DataFrame:
     return scope_df
 
 
-def get_pdb_ids(scope_df: pd.DataFrame) -> list[str]:
+def get_pdb_ids(scope_df: pd.DataFrame, logger: logging.Logger) -> list[str]:
+    logger.info("Getting unique PDB IDs from SCOPe file")
     return scope_df["pdb_id"].unique().tolist()
 
 
-def get_category(scope_df: pd.DataFrame, pdb_id: str) -> str:
+def get_category(
+    scope_df: pd.DataFrame, pdb_id: str, logger: logging.Logger
+) -> str:
     try:
-        return scope_df[scope_df["pdb_id"] == pdb_id]["category"].tolist()[0]
+        cat = scope_df[scope_df["pdb_id"] == pdb_id]["category"].tolist()[0]
+        logger.debug(f"Category for {pdb_id}: {cat}")
+        return cat
     except (KeyError, IndexError):
+        logger.warning(f"Category for {pdb_id} not found")
         return ""
 
 
-def get_uniprot_id(pdb_id: str, retries: int, timeout: int) -> str:
+def get_uniprot_id(
+    pdb_id: str, retries: int, timeout: int, logger: logging.Logger
+) -> str:
+    logger.info(f"Getting UniProt ID for {pdb_id}")
     for _ in range(retries):
         try:
             response = rq.get(
@@ -54,21 +67,29 @@ def get_uniprot_id(pdb_id: str, retries: int, timeout: int) -> str:
                 timeout=timeout,
             )
         except Exception:  # pragma: no cover
+            logger.warning("Connection timeout. Retrying...")
             continue
         if response.status_code == 200:
+            logger.debug("Connected")
             content = response.json()
             response.close()
             try:
                 uniprot_id = content[
                     "rcsb_polymer_entity_container_identifiers"
                 ]["uniprot_ids"][0]
+                logger.debug(f"Found UniProt ID for {pdb_id}: {uniprot_id}")
             except KeyError:  # pragma: no cover
+                logger.error(f"UniProt ID for {pdb_id} not found")
                 return ""
             return uniprot_id.upper()
+    logger.error("Connection error. Exceeded retries")
     return ""
 
 
-def get_gene_id(uniprot_id: str, retries: int, timeout: int) -> str:
+def get_gene_id(
+    uniprot_id: str, retries: int, timeout: int, logger: logging.Logger
+) -> str:
+    logger.info(f"Getting GeneID for {uniprot_id}")
     for _ in range(retries):
         try:
             response = rq.get(
@@ -76,11 +97,18 @@ def get_gene_id(uniprot_id: str, retries: int, timeout: int) -> str:
                 timeout=timeout,
             )
         except Exception:  # pragma: no cover
+            logger.warning("Connection timeout. Retrying...")
             continue
         if response.status_code == 200:
+            logger.debug("Connected")
             content = response.text.split("\n")
             response.close()
             for line in content:
                 if "GeneID;" in line:
-                    return line.split(";")[1].strip()
+                    gene_id = line.split(";")[1].strip()
+                    logger.debug(f"Found GeneID for {uniprot_id}: {gene_id}")
+                    return gene_id
+            logger.error(f"GeneID for {uniprot_id} not found")
+            return ""
+    logger.error("Connection error. Exceeded retries")
     return ""
