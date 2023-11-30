@@ -20,31 +20,21 @@ def test_logger_file_handler():
     with open(logfile, "r") as f:
         lines = f.readlines()
         assert len(lines) == 5
-        assert [
-            "test_logger_file_handler",
-            "INFO",
-            "This is an info message\n",
-        ] == lines[0].split(" - ")[1:]
-        assert [
-            "test_logger_file_handler",
-            "DEBUG",
-            "This is a debug message\n",
-        ] == lines[1].split(" - ")[1:]
-        assert [
-            "test_logger_file_handler",
-            "WARNING",
-            "This is a warning\n",
-        ] == lines[2].split(" - ")[1:]
-        assert [
-            "test_logger_file_handler",
-            "ERROR",
-            "This is an error\n",
-        ] == lines[3].split(" - ")[1:]
-        assert [
-            "test_logger_file_handler",
-            "CRITICAL",
-            "This is a critical error\n",
-        ] == lines[4].split(" - ")[1:]
+        assert "test_logger_file_handler" in lines[0]
+        assert "INFO" in lines[0]
+        assert "This is an info message\n" in lines[0]
+        assert "test_logger_file_handler" in lines[1]
+        assert "DEBUG" in lines[1]
+        assert "This is a debug message\n" in lines[1]
+        assert "test_logger_file_handler" in lines[2]
+        assert "WARNING" in lines[2]
+        assert "This is a warning\n" in lines[2]
+        assert "test_logger_file_handler" in lines[3]
+        assert "ERROR" in lines[3]
+        assert "This is an error\n" in lines[3]
+        assert "test_logger_file_handler" in lines[4]
+        assert "CRITICAL" in lines[4]
+        assert "This is a critical error\n" in lines[4]
     assert (logfile).exists()
 
 
@@ -57,7 +47,7 @@ def test_logger_console_handler(capfd):
     # due to a bug, pytest needs to be run with -s flag to capture stderr
     captured = capfd.readouterr()
     assert captured.err.split(" - ") == [
-        "test_logger_console_handler",
+        "[test_logger_console_handler]",
         "CRITICAL",
         "This is a critical error\n",
     ]

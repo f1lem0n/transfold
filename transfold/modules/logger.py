@@ -17,10 +17,10 @@ def get_logger(prefix: Path, name: str, start_time: str) -> logging.Logger:
         f_handler.setLevel(logging.DEBUG)
 
         c_format = logging.Formatter(
-            "%(funcName)s - %(levelname)s - %(message)s"
+            "[%(funcName)s] - %(levelname)s - %(message)s"
         )
         f_format = logging.Formatter(
-            "%(asctime)s - %(funcName)s - %(levelname)s - %(message)s"
+            "%(asctime)-30s %(funcName)-40s %(levelname)-10s %(message)s"
         )
         c_handler.setFormatter(c_format)
         f_handler.setFormatter(f_format)

@@ -51,14 +51,13 @@ def get_category(
         logger.debug(f"Category for {pdb_id}: {cat}")
         return cat
     except (KeyError, IndexError):
-        logger.warning(f"Category for {pdb_id} not found")
+        logger.error(f"Category for {pdb_id} not found")
         return ""
 
 
 def get_uniprot_id(
     pdb_id: str, retries: int, timeout: int, logger: logging.Logger
 ) -> str:
-    logger.info(f"Getting UniProt ID for {pdb_id}")
     for _ in range(retries):
         try:
             response = rq.get(
@@ -70,7 +69,7 @@ def get_uniprot_id(
             logger.warning("Connection timeout. Retrying...")
             continue
         if response.status_code == 200:
-            logger.debug("Connected")
+            logger.debug("Connected to PDB")
             content = response.json()
             response.close()
             try:
@@ -89,7 +88,6 @@ def get_uniprot_id(
 def get_gene_id(
     uniprot_id: str, retries: int, timeout: int, logger: logging.Logger
 ) -> str:
-    logger.info(f"Getting GeneID for {uniprot_id}")
     for _ in range(retries):
         try:
             response = rq.get(
@@ -100,7 +98,7 @@ def get_gene_id(
             logger.warning("Connection timeout. Retrying...")
             continue
         if response.status_code == 200:
-            logger.debug("Connected")
+            logger.debug("Connected to UniProt")
             content = response.text.split("\n")
             response.close()
             for line in content:
