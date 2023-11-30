@@ -51,3 +51,25 @@ def test_logger_console_handler(capfd):
         "CRITICAL",
         "This is a critical error\n",
     ]
+
+
+def test_logger_verbose(capsys):
+    # overwrite logger with verbose logger
+    logger = get_logger(LOGS_PATH, LOGGER_NAME, start_time, verbose=True)
+    logger.info("This is an info message")
+    logger.debug("This is a debug message")
+    logger.warning("This is a warning")
+    logger.error("This is an error")
+    logger.critical("This is a critical error")
+    captured_verbose = capsys.readouterr()
+    assert "test_logger_verbose" in captured_verbose.err
+    assert "INFO" in captured_verbose.err
+    assert "This is an info message\n" in captured_verbose.err
+    assert "DEBUG" in captured_verbose.err
+    assert "This is a debug message\n" in captured_verbose.err
+    assert "WARNING" in captured_verbose.err
+    assert "This is a warning\n" in captured_verbose.err
+    assert "ERROR" in captured_verbose.err
+    assert "This is an error\n" in captured_verbose.err
+    assert "CRITICAL" in captured_verbose.err
+    assert "This is a critical error\n" in captured_verbose.err

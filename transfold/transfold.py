@@ -87,12 +87,19 @@ def run():
     default=10,
     help="Timeout for single HTTP request in seconds",
 )
-def download(scope, pattern, output, log, retries, timeout):
+@click.option(
+    "--verbose",
+    "-v",
+    is_flag=True,
+    default=False,
+    help="Print debug messages to stdout",
+)
+def download(scope, pattern, output, log, retries, timeout, verbose):
     start_time = strftime(r"%Y-%m-%d_%H%M%S", localtime())
-    logger = get_logger(Path(log).absolute(), "download", start_time)
+    logger = get_logger(Path(log).absolute(), "download", start_time, verbose)
     scope_df = get_scope_df(scope, pattern, logger)
     output = Path(output).absolute()
-    cds_downloader(scope_df, output, retries, timeout, logger)
+    cds_downloader(scope_df, output, retries, timeout, logger, verbose)
 
 
 if __name__ == "__main__":
