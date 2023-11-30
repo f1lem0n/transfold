@@ -10,7 +10,15 @@ classifiers = [
     "License :: OSI Approved :: Apache License 2.0",
     "Operating System :: Debian 11",
 ]
-dependencies = ["click", "numpy", "pandas", "pyyaml", "tqdm", "requests"]
+dependencies = [
+    "click",
+    "numpy",
+    "pandas",
+    "pyyaml",
+    "tqdm",
+    "requests",
+    "rich",
+]
 
 [project.urls]
 Homepage = "https://github.com/f1lem0n/transfold"
