@@ -6,7 +6,7 @@ import click
 from rich.console import Console
 
 from transfold._version import __version__
-from transfold.modules.downloaders import download_sequence_data
+from transfold.modules.downloaders import download_all_sequence_data
 from transfold.modules.logger import get_logger
 from transfold.modules.scope_parser import get_scope_df
 
@@ -132,6 +132,13 @@ def run():
     type=Path,
 )
 @click.option(
+    "--jobs",
+    "-j",
+    default=1,
+    help="Number of concurrent jobs",
+    type=int,
+)
+@click.option(
     "--retries",
     "-r",
     default=3,
@@ -152,12 +159,14 @@ def run():
     default=False,
     help="Print debug messages to stdout",
 )
-def download(scope, pattern, output, log, retries, timeout, verbose):
+def download(scope, pattern, output, log, jobs, retries, timeout, verbose):
     start_time = strftime(r"%Y-%m-%d_%H%M%S", localtime())
     logger = get_logger(Path(log).absolute(), "download", start_time, verbose)
     scope_df = get_scope_df(scope, pattern, logger)
     output = Path(output).absolute()
-    download_sequence_data(scope_df, output, retries, timeout, logger, verbose)
+    download_all_sequence_data(
+        scope_df, output, jobs, retries, timeout, logger, verbose
+    )
 
 
 if __name__ == "__main__":

@@ -10,7 +10,6 @@ def get_logger(
 
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
-
     # overwrite handlers if they already exist
     if logger.handlers:
         logger.handlers.clear()
