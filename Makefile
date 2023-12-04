@@ -44,7 +44,7 @@ clean:
 		transfold/__pycache__ \
 		transfold/modules/__pycache__ \
 		tests/__pycache__ \
-		tests/data/CDS/ \
+		tests/data/sequence_data/ \
 		tests/data/temp \
 		tests/logs/ \
 		transfold-test-venv/ \
@@ -56,9 +56,9 @@ checksum:
 	@find . -type f \
 		\! -path "./.vscode/*" \
 		\! -path "./.git/*" \
-		\! -path "./data/CDS/*" \
+		\! -path "./data/sequence_data/*" \
 		\! -path "./data/temp/*" \
-		\! -path "./tests/data/CDS/*" \
+		\! -path "./tests/data/sequence_data/*" \
 		\! -path "./tests/data/temp/*" \
 		\! -path "./tests/logs/*" \
 		\! -path "./.pytest_cache/*" \
@@ -78,9 +78,9 @@ diff:
 	@find . -type f \
 		\! -path "./.vscode/*" \
 		\! -path "./.git/*" \
-		\! -path "./data/CDS/*" \
+		\! -path "./data/sequence_data/*" \
 		\! -path "./data/temp/*" \
-		\! -path "./tests/data/CDS/*" \
+		\! -path "./tests/data/sequence_data/*" \
 		\! -path "./tests/data/temp/*" \
 		\! -path "./tests/logs/*" \
 		\! -path "./.pytest_cache/*" \

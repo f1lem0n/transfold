@@ -3,11 +3,10 @@ from pathlib import Path
 from time import localtime, strftime
 
 import click
-import yaml
 from rich.console import Console
 
 from transfold._version import __version__
-from transfold.modules.downloaders import cds_downloader
+from transfold.modules.downloaders import download_sequence_data
 from transfold.modules.logger import get_logger
 from transfold.modules.scope_parser import get_scope_df
 
@@ -72,14 +71,6 @@ class RichCommand(click.Command):
                 f"{param.get_help_record(ctx)[1]:<40}"
             )
         formatter.write(sio.getvalue())
-
-
-def read_yaml_file(filepath):
-    with open(Path(filepath).absolute(), "r") as file:
-        try:
-            return yaml.safe_load(file)
-        except yaml.YAMLError as e:
-            print(e)
 
 
 @click.group(
@@ -166,7 +157,7 @@ def download(scope, pattern, output, log, retries, timeout, verbose):
     logger = get_logger(Path(log).absolute(), "download", start_time, verbose)
     scope_df = get_scope_df(scope, pattern, logger)
     output = Path(output).absolute()
-    cds_downloader(scope_df, output, retries, timeout, logger, verbose)
+    download_sequence_data(scope_df, output, retries, timeout, logger, verbose)
 
 
 if __name__ == "__main__":

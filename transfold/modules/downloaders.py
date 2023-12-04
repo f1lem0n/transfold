@@ -21,7 +21,7 @@ class Writeable:  # pragma: no cover
         ...
 
 
-def cds_downloader(
+def download_sequence_data(
     scope_df: DataFrame,
     output: Path,
     retries: int,
@@ -30,7 +30,7 @@ def cds_downloader(
     verbose=False,
 ) -> Writeable:
     pdb_ids = get_pdb_ids(scope_df, logger)
-    logger.info(f"Starting CDS data download at: {output}")
+    logger.info(f"Starting sequence data download at: {output}")
     logger.info(f"PARAMS:\n\n\tretries: {retries}\n\ttimeout: {timeout}\n")
     if not verbose:  # pragma: no cover
         # if verbose is False, enable tqdm progress bar
@@ -38,7 +38,7 @@ def cds_downloader(
     for pdb_id in pdb_ids:
         # skip if dir already exists or uniprot_id or gene_id is not found
         category = get_category(scope_df, pdb_id, logger)
-        if (output / "CDS" / category / pdb_id).exists():
+        if (output / "sequence_data" / category / pdb_id).exists():
             logger.debug(f"Skipping {pdb_id} as it already exists")
             continue
         uniprot_id = get_uniprot_id(pdb_id, retries, timeout, logger)
@@ -72,12 +72,14 @@ def cds_downloader(
             capture_output=True,
             shell=True,
         )
-        # move data to categorized CDS folder
-        logger.debug(f"Moving data to: {output / 'CDS' / category / pdb_id}")
-        (output / "CDS" / category / pdb_id).mkdir(parents=True)
+        # move data to categorized sequence_data folder
+        logger.debug(
+            f"Moving data to: {output / 'sequence_data' / category / pdb_id}"
+        )
+        (output / "sequence_data" / category / pdb_id).mkdir(parents=True)
         shutil.move(
             output / "temp" / "ncbi_dataset" / "data",
-            output / "CDS" / category / pdb_id,
+            output / "sequence_data" / category / pdb_id,
             copy_function=shutil.copytree,
         )
         # clean up temp folder
