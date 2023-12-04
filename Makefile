@@ -41,6 +41,7 @@ lint:
 clean:
 	@rm -rf .coverage .pytest-monitor .pytest_cache .mypy_cache
 	@rm -rf \
+		logs/ \
 		transfold/__pycache__ \
 		transfold/modules/__pycache__ \
 		tests/__pycache__ \
