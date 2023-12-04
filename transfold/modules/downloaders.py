@@ -96,11 +96,30 @@ def download_all_sequence_data(
     )
     pdb_ids = get_pdb_ids(scope_df, logger)
     with ProcessPoolExecutor(max_workers=jobs) as executor:
-        with tqdm(total=len(pdb_ids)) as progress:
-            # both futures and results lists are needed for the progress bar
-            futures = []
+        if not verbose:
+            with tqdm(total=len(pdb_ids)) as progress:
+                # both futures and results lists
+                # are needed for the progress bar
+                futures = []
+                for pdb_id in pdb_ids:
+                    future = executor.submit(
+                        download_sequence_data,
+                        pdb_id,
+                        scope_df,
+                        output,
+                        retries,
+                        timeout,
+                        logger,
+                    )
+                    future.add_done_callback(lambda _: progress.update())
+                    futures.append(future)
+                results = []
+                for future in futures:
+                    result = future.result()
+                    results.append(result)
+        else:
             for pdb_id in pdb_ids:
-                future = executor.submit(
+                executor.submit(
                     download_sequence_data,
                     pdb_id,
                     scope_df,
@@ -109,12 +128,6 @@ def download_all_sequence_data(
                     timeout,
                     logger,
                 )
-                future.add_done_callback(lambda _: progress.update())
-                futures.append(future)
-            results = []
-            for future in futures:
-                result = future.result()
-                results.append(result)
 
     logger.info("Sequence data download complete\n")
     return Writeable()
