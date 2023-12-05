@@ -1,8 +1,3 @@
-# Author: Filip Hajdyła
-# Date of creation: 14/11/2023
-# Description: Implementation of simplified McCaskill algorithm
-#              for RNA secondary structure prediction
-
 import logging
 
 import numpy as np
