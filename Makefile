@@ -42,6 +42,7 @@ clean:
 	@rm -rf .coverage .pytest-monitor .pytest_cache .mypy_cache
 	@rm -rf \
 		logs/ \
+		__pycache__ \
 		transfold/__pycache__ \
 		transfold/modules/__pycache__ \
 		tests/__pycache__ \
@@ -57,6 +58,7 @@ checksum:
 	@find . -type f \
 		\! -path "./.vscode/*" \
 		\! -path "./.git/*" \
+		\! -path "./logs/*" \
 		\! -path "./data/sequence_data/*" \
 		\! -path "./data/temp/*" \
 		\! -path "./tests/data/sequence_data/*" \
@@ -67,11 +69,11 @@ checksum:
 		\! -path "./.pytest-monitor/*" \
 		\! -path "./.coverage" \
 		\! -path "*__pycache__*" \
-		\! -path "./.checksum.md5" \
+		\! -path "./md5_repo" \
 		\! -path "./transfold-test-venv/*" \
 		\! -path "./transfold.egg-info/*" \
 		\! -path "./dist/*" \
-		-exec md5sum {} \; | sort -k 2 | md5sum > .checksum.md5
+		-exec md5sum {} \; | sort -k 2 | md5sum > md5_repo
 	@echo "Checksum generated!"
 
 diff:
@@ -79,6 +81,7 @@ diff:
 	@find . -type f \
 		\! -path "./.vscode/*" \
 		\! -path "./.git/*" \
+		\! -path "./logs/*" \
 		\! -path "./data/sequence_data/*" \
 		\! -path "./data/temp/*" \
 		\! -path "./tests/data/sequence_data/*" \
@@ -89,11 +92,11 @@ diff:
 		\! -path "./.pytest-monitor/*" \
 		\! -path "./.coverage" \
 		\! -path "*__pycache__*" \
-		\! -path "./.checksum.md5" \
+		\! -path "./md5_repo" \
 		\! -path "./transfold-test-venv/*" \
 		\! -path "./transfold.egg-info/*" \
 		\! -path "./dist/*" \
-		-exec md5sum {} \; | sort -k 2 | md5sum | diff - .checksum.md5
+		-exec md5sum {} \; | sort -k 2 | md5sum | diff - md5_repo
 	@echo "Checksums are equal!"
 
 install:

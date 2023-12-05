@@ -6,9 +6,8 @@ import click
 from rich.console import Console
 
 from transfold._version import __version__
-from transfold.modules.downloaders import download_all_sequence_data
+from transfold.modules.downloaders import SequenceDataDownloader
 from transfold.modules.logger import get_logger
-from transfold.modules.scope_parser import get_scope_df
 
 ASCII = r"""
  /$$$$$$$$                                      /$$$$$$          /$$       /$$
@@ -162,11 +161,17 @@ def run():
 def download(scope, pattern, output, log, jobs, retries, timeout, verbose):
     start_time = strftime(r"%Y-%m-%d_%H%M%S", localtime())
     logger = get_logger(Path(log).absolute(), "download", start_time, verbose)
-    scope_df = get_scope_df(scope, pattern, logger)
-    output = Path(output).absolute()
-    download_all_sequence_data(
-        scope_df, output, jobs, retries, timeout, logger, verbose
+    downloader = SequenceDataDownloader(
+        scope_path=Path(scope).absolute(),
+        pattern=pattern,
+        output=Path(output).absolute(),
+        retries=retries,
+        timeout=timeout,
+        jobs=jobs,
+        logger=logger,
+        verbose=verbose,
     )
+    downloader.start()
 
 
 if __name__ == "__main__":

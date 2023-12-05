@@ -2,43 +2,79 @@ import shutil
 from pathlib import Path
 from time import localtime, strftime
 
-from transfold.modules.downloaders import (
-    Writeable,
-    download_all_sequence_data,
-    download_sequence_data,
-)
+from transfold.modules.downloaders import SequenceDataDownloader, Writeable
 from transfold.modules.logger import get_logger
-from transfold.modules.scope_parser import get_scope_df
 
+# do not change this params
 SCOPE_PATH = Path("tests/data/test_scope.tsv").absolute()
-PATTERN = ".*"
 OUTPUT = Path("tests/data/").absolute()
-JOBS = 8
+LOGS_PATH = Path("tests/logs").absolute()
+PATTERN = ".*"
+JOBS = 16
 RETRIES = 5
 TIMEOUT = 15
-LOGS_PATH = Path("tests/logs").absolute()
+TRUE_PDB_ID = "1ux8"
+FALSE_PDB_ID = "false_pdb_id"
+TRUE_UNIPROT_ID = "O31607"
+FALSE_UNIPROT_ID = "false_uniprot_id"
+PDB_IDS_FROM_SCOPES = [
+    "1ux8",
+    "1dlw",
+    "1uvy",
+    "1dly",
+    "1uvx",
+    "2gkm",
+    "2gkm",
+    "2gl3",
+    "2gl3",
+    "1idr",
+]
+UNIPROT_IDS_FROM_SCOPES = [
+    "O31607",
+    "P15160",
+    "P15160",
+    "Q08753",
+    "Q08753",
+    "P9WN25",
+    "P9WN25",
+    "P9WN25",
+    "P9WN25",
+    "P9WN25",
+]
+GENE_IDS_FROM_SCOPES = [
+    "936416",
+    "",
+    "",
+    "",
+    "",
+    "45425525",
+    "45425525",
+    "45425525",
+    "45425525",
+    "45425525",
+]
 
 start_time = strftime("%Y-%m-%d_%H%M%S", localtime())
-logger = get_logger(LOGS_PATH, "test_downloaders", start_time)
+logger = get_logger(LOGS_PATH, "test_scope_parser", start_time)
 
 
-def test_download_all_sequence_data_verbose():
-    scope_df = get_scope_df(SCOPE_PATH, PATTERN, logger)
+def test_SequenceDataDownloader():
+    downloader = SequenceDataDownloader(
+        scope_path=SCOPE_PATH,
+        pattern=PATTERN,
+        output=OUTPUT,
+        retries=RETRIES,
+        timeout=TIMEOUT,
+        jobs=JOBS,
+        logger=logger,
+        verbose=False,
+    )
     (OUTPUT / "temp").mkdir(parents=True)
     (OUTPUT / "sequence_data" / "a.1.1.2" / "1idr" / "data").mkdir(
         parents=True
     )
-    assert (
-        type(
-            download_all_sequence_data(
-                scope_df, OUTPUT, JOBS, RETRIES, TIMEOUT, logger, True
-            )
-        )
-        == Writeable
-    )
-    download_all_sequence_data(
-        scope_df, OUTPUT, JOBS, RETRIES, TIMEOUT, logger, True
-    )
+    assert type(downloader.start()) == Writeable
+    downloader.start()
     for pdb_id in ["1ux8", "2gkm", "2gl3"]:
         assert (
             OUTPUT
@@ -70,23 +106,23 @@ def test_download_all_sequence_data_verbose():
         shutil.rmtree(OUTPUT / "temp")
 
 
-def test_download_all_sequence_data():
-    scope_df = get_scope_df(SCOPE_PATH, PATTERN, logger)
+def test_SequenceDataDownloader_verbose():
+    downloader = SequenceDataDownloader(
+        scope_path=SCOPE_PATH,
+        pattern=PATTERN,
+        output=OUTPUT,
+        retries=RETRIES,
+        timeout=TIMEOUT,
+        jobs=JOBS,
+        logger=logger,
+        verbose=True,
+    )
     (OUTPUT / "temp").mkdir(parents=True)
     (OUTPUT / "sequence_data" / "a.1.1.2" / "1idr" / "data").mkdir(
         parents=True
     )
-    assert (
-        type(
-            download_all_sequence_data(
-                scope_df, OUTPUT, JOBS, RETRIES, TIMEOUT, logger
-            )
-        )
-        == Writeable
-    )
-    download_all_sequence_data(
-        scope_df, OUTPUT, JOBS, RETRIES, TIMEOUT, logger
-    )
+    assert type(downloader.start()) == Writeable
+    downloader.start()
     for pdb_id in ["1ux8", "2gkm", "2gl3"]:
         assert (
             OUTPUT
@@ -119,17 +155,19 @@ def test_download_all_sequence_data():
 
 
 def test_download_sequence_data():
-    scope_df = get_scope_df(SCOPE_PATH, PATTERN, logger)
-    (OUTPUT / "temp").mkdir(parents=True)
-    assert (
-        type(
-            download_sequence_data(
-                "1ux8", scope_df, OUTPUT, RETRIES, TIMEOUT, logger
-            )
-        )
-        == Writeable
+    downloader = SequenceDataDownloader(
+        scope_path=SCOPE_PATH,
+        pattern=PATTERN,
+        output=OUTPUT,
+        retries=RETRIES,
+        timeout=TIMEOUT,
+        jobs=JOBS,
+        logger=logger,
+        verbose=False,
     )
-    download_sequence_data("1ux8", scope_df, OUTPUT, RETRIES, TIMEOUT, logger)
+    (OUTPUT / "temp").mkdir(parents=True)
+    assert type(downloader._download_sequence_data(TRUE_PDB_ID)) == Writeable
+    downloader._download_sequence_data(TRUE_PDB_ID)
     assert (
         OUTPUT
         / "sequence_data"
@@ -138,7 +176,17 @@ def test_download_sequence_data():
         / "data"
         / "data_report.jsonl"
     ).exists()
-    download_sequence_data("1dly", scope_df, OUTPUT, RETRIES, TIMEOUT, logger)
+    downloader._download_sequence_data(FALSE_PDB_ID)
+    assert not (
+        OUTPUT
+        / "sequence_data"
+        / "a.1.1.1"
+        / FALSE_PDB_ID
+        / "data"
+        / "data_report.jsonl"
+    ).exists()
+    # test case where UniProt ID is found but not GeneID
+    downloader._download_sequence_data("1dly")
     assert not (
         OUTPUT
         / "sequence_data"
@@ -147,18 +195,78 @@ def test_download_sequence_data():
         / "data"
         / "data_report.jsonl"
     ).exists()
-    download_sequence_data(
-        "false_pdb_id", scope_df, OUTPUT, RETRIES, TIMEOUT, logger
-    )
-    assert not (
-        OUTPUT
-        / "sequence_data"
-        / "a.1.1.1"
-        / "false_pdb_id"
-        / "data"
-        / "data_report.jsonl"
-    ).exists()
     if (OUTPUT / "sequence_data").exists():  # pragma: no cover
         shutil.rmtree(OUTPUT / "sequence_data")
     if (OUTPUT / "temp").exists():  # pragma: no cover
         shutil.rmtree(OUTPUT / "temp")
+
+
+def test_get_category():
+    downloader = SequenceDataDownloader(
+        scope_path=SCOPE_PATH,
+        pattern=PATTERN,
+        output=OUTPUT,
+        retries=RETRIES,
+        timeout=TIMEOUT,
+        jobs=JOBS,
+        logger=logger,
+        verbose=False,
+    )
+    assert type(downloader._get_category(TRUE_PDB_ID)) == str
+    assert type(downloader._get_category(FALSE_PDB_ID)) == str
+    assert downloader._get_category(TRUE_PDB_ID) == "a.1.1.1"
+    assert downloader._get_category(FALSE_PDB_ID) == ""
+
+
+def test_get_pdb_ids():
+    downloader = SequenceDataDownloader(
+        scope_path=SCOPE_PATH,
+        pattern=PATTERN,
+        output=OUTPUT,
+        retries=RETRIES,
+        timeout=TIMEOUT,
+        jobs=JOBS,
+        logger=logger,
+        verbose=False,
+    )
+    downloader._get_pdb_ids() == PDB_IDS_FROM_SCOPES
+
+
+def test_get_uniprot_id():
+    downloader = SequenceDataDownloader(
+        scope_path=SCOPE_PATH,
+        pattern=PATTERN,
+        output=OUTPUT,
+        retries=RETRIES,
+        timeout=TIMEOUT,
+        jobs=JOBS,
+        logger=logger,
+        verbose=False,
+    )
+    assert type(downloader._get_uniprot_id(TRUE_PDB_ID)) == str
+    assert type(downloader._get_uniprot_id(FALSE_PDB_ID)) == str
+    for pdb_id, uniprot_id in zip(
+        PDB_IDS_FROM_SCOPES, UNIPROT_IDS_FROM_SCOPES
+    ):
+        assert downloader._get_uniprot_id(pdb_id) == uniprot_id
+    assert downloader._get_uniprot_id(FALSE_PDB_ID) == ""
+
+
+def test_get_gene_id():
+    downloader = SequenceDataDownloader(
+        scope_path=SCOPE_PATH,
+        pattern=PATTERN,
+        output=OUTPUT,
+        retries=RETRIES,
+        timeout=TIMEOUT,
+        jobs=JOBS,
+        logger=logger,
+        verbose=False,
+    )
+    assert type(downloader._get_gene_id(TRUE_UNIPROT_ID)) == str
+    assert type(downloader._get_gene_id(FALSE_UNIPROT_ID)) == str
+    for uniprot_id, gene_id in zip(
+        UNIPROT_IDS_FROM_SCOPES, GENE_IDS_FROM_SCOPES
+    ):
+        assert downloader._get_gene_id(uniprot_id) == gene_id
+    assert downloader._get_gene_id(FALSE_UNIPROT_ID) == ""
