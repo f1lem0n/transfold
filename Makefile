@@ -36,7 +36,7 @@ format:
 
 lint:
 	@flake8 transfold/ tests/ setup.py
-	@mypy transfold/ tests/ setup.py
+	@mypy --install-types --non-interactive transfold/ tests/ setup.py
 
 clean:
 	@rm -rf .coverage .pytest-monitor .pytest_cache .mypy_cache
