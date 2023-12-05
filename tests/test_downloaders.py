@@ -3,7 +3,7 @@ from pathlib import Path
 from time import localtime, strftime
 
 from transfold.modules.downloaders import SequenceDataDownloader, Writeable
-from transfold.modules.logger import get_logger
+from transfold.modules.logger import TransfoldLogger
 
 # do not change this params
 SCOPE_PATH = Path("tests/data/test_scope.tsv").absolute()
@@ -55,7 +55,7 @@ GENE_IDS_FROM_SCOPES = [
 ]
 
 start_time = strftime("%Y-%m-%d_%H%M%S", localtime())
-logger = get_logger(LOGS_PATH, "test_scope_parser", start_time)
+logger = TransfoldLogger(LOGS_PATH, "test_scope_parser", start_time)
 
 
 def test_SequenceDataDownloader():

@@ -3,7 +3,7 @@ from time import localtime, strftime
 
 import numpy as np
 
-from transfold.modules.logger import get_logger
+from transfold.modules.logger import TransfoldLogger
 from transfold.modules.mccaskill import (
     calc_paired_unpaired_probabilities,
     check_pairing,
@@ -20,7 +20,7 @@ INVALID_SEQ = "GGTCCACZ"
 LOGS_PATH = Path("tests/logs").absolute()
 
 start_time = strftime("%Y-%m-%d_%H%M%S", localtime())
-logger = get_logger(LOGS_PATH, "test_mccaskill", start_time)
+logger = TransfoldLogger(LOGS_PATH, "test_mccaskill", start_time)
 
 
 def test_check_sequence():
