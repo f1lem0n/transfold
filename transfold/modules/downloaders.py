@@ -205,9 +205,9 @@ class SequenceDataDownloader:
         self.logger.info(f"Starting sequence data download at: {self.output}")
         self.logger.info(
             f"PARAMS:\n"
-            f"\n\tretries: {self.retries}"
-            f"\n\ttimeout: {self.timeout}"
-            f"\n\tconcurrent jobs: {self.jobs}\n"
+            f"\n\tRetries: {self.retries}"
+            f"\n\tTimeout: {self.timeout}"
+            f"\n\tConcurrent jobs: {self.jobs}\n"
         )
         with ProcessPoolExecutor(max_workers=self.jobs) as executor:
             if not self.verbose:

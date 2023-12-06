@@ -1,275 +1,306 @@
 from pathlib import Path
 from time import localtime, strftime
+from typing import Generator
 
 import numpy as np
 
 from transfold.modules.logger import TransfoldLogger
-from transfold.modules.mccaskill import (
-    calc_paired_unpaired_probabilities,
-    check_pairing,
-    check_sequence,
-    create_scoring_tables,
-)
+from transfold.modules.mccaskill import McCaskill
 
 # do not change these params
+SEQ_DATA_PATH = Path("tests/data/test_sequence_data/").absolute()
+LOGS_PATH = Path("tests/logs").absolute()
 MIN_LOOP_LENGTH = 1
 BP_ENERGY_WEIGHT = -1
 NORMALIZED_RT = 1
+ITERS = 5
 VALID_SEQ = "GGUCCAC"
 INVALID_SEQ = "GGTCCACZ"
-LOGS_PATH = Path("tests/logs").absolute()
 
 start_time = strftime("%Y-%m-%d_%H%M%S", localtime())
 logger = TransfoldLogger(LOGS_PATH, "test_mccaskill", start_time)
 
 
+def test_get_sequence_files():
+    calculator = McCaskill(
+        sequence_data_path=SEQ_DATA_PATH,
+        bp_energy_weight=BP_ENERGY_WEIGHT,
+        normalized_rt=NORMALIZED_RT,
+        min_loop_length=MIN_LOOP_LENGTH,
+        iters=ITERS,
+        logger=logger,
+        verbose=False,
+    )
+    assert isinstance(calculator._get_sequence_filepaths(), Generator)
+    assert len(list(calculator._get_sequence_filepaths())) == 4
+    assert str(sorted(list(calculator._get_sequence_filepaths()))[0]) == str(
+        SEQ_DATA_PATH / "a.1.1.1" / "1ux8" / "data" / "gene.fna"
+    )
+    assert str(sorted(list(calculator._get_sequence_filepaths()))[1]) == str(
+        SEQ_DATA_PATH / "a.1.1.1" / "2gkm" / "data" / "gene.fna"
+    )
+    assert str(sorted(list(calculator._get_sequence_filepaths()))[2]) == str(
+        SEQ_DATA_PATH / "a.1.1.1" / "2gl3" / "data" / "gene.fna"
+    )
+    assert str(sorted(list(calculator._get_sequence_filepaths()))[3]) == str(
+        SEQ_DATA_PATH / "a.1.1.2" / "1idr" / "data" / "gene.fna"
+    )
+
+
 def test_check_sequence():
-    assert check_sequence(VALID_SEQ, logger) is True
-    assert check_sequence(INVALID_SEQ, logger) is False
+    calculator = McCaskill(
+        sequence_data_path=SEQ_DATA_PATH,
+        bp_energy_weight=BP_ENERGY_WEIGHT,
+        normalized_rt=NORMALIZED_RT,
+        min_loop_length=MIN_LOOP_LENGTH,
+        iters=ITERS,
+        logger=logger,
+        verbose=False,
+    )
+    assert calculator._check_sequence(VALID_SEQ)
+    assert not calculator._check_sequence(INVALID_SEQ)
 
 
 def test_check_pairing():
-    assert type(check_pairing("A", "U", logger)) == bool
-    assert check_pairing("A", "U", logger) is True
-    assert check_pairing("U", "U", logger) is False
-    assert check_pairing("G", "U", logger) is True
-    assert check_pairing("C", "U", logger) is False
-    assert check_pairing("A", "C", logger) is False
-    assert check_pairing("G", "C", logger) is True
-    assert check_pairing("C", "C", logger) is False
-    assert check_pairing("A", "G", logger) is False
-    assert check_pairing("A", "A", logger) is False
+    calculator = McCaskill(
+        sequence_data_path=SEQ_DATA_PATH,
+        bp_energy_weight=BP_ENERGY_WEIGHT,
+        normalized_rt=NORMALIZED_RT,
+        min_loop_length=MIN_LOOP_LENGTH,
+        iters=ITERS,
+        logger=logger,
+        verbose=False,
+    )
+    assert type(calculator._check_pairing("A", "U")) == bool
+    assert calculator._check_pairing("A", "U") is True
+    assert calculator._check_pairing("U", "U") is False
+    assert calculator._check_pairing("G", "U") is True
+    assert calculator._check_pairing("C", "U") is False
+    assert calculator._check_pairing("A", "C") is False
+    assert calculator._check_pairing("G", "C") is True
+    assert calculator._check_pairing("C", "C") is False
+    assert calculator._check_pairing("A", "G") is False
+    assert calculator._check_pairing("A", "A") is False
+
+
+def test_calc_scores():
+    # testing only shapes of intermediate arrays because target values
+    # are already tested in test_create_scoring_tables()
+    calculator = McCaskill(
+        sequence_data_path=SEQ_DATA_PATH,
+        bp_energy_weight=BP_ENERGY_WEIGHT,
+        normalized_rt=NORMALIZED_RT,
+        min_loop_length=MIN_LOOP_LENGTH,
+        iters=ITERS,
+        logger=logger,
+        verbose=False,
+    )
+    n = len(VALID_SEQ) + 1
+    q_unpaired = np.ones((n, n))
+    q_paired = np.zeros((n, n))
+    assert calculator._calc_scores(q_unpaired, q_paired, VALID_SEQ)[
+        0
+    ].shape == (n, n)
+    assert calculator._calc_scores(q_unpaired, q_paired, VALID_SEQ)[
+        1
+    ].shape == (n, n)
 
 
 def test_create_scoring_tables():
+    calculator = McCaskill(
+        sequence_data_path=SEQ_DATA_PATH,
+        bp_energy_weight=BP_ENERGY_WEIGHT,
+        normalized_rt=NORMALIZED_RT,
+        min_loop_length=MIN_LOOP_LENGTH,
+        iters=ITERS,
+        logger=logger,
+        verbose=False,
+    )
     assert (
         type(
-            create_scoring_tables(
+            calculator._create_scoring_tables(
                 VALID_SEQ,
-                3,
-                BP_ENERGY_WEIGHT,
-                NORMALIZED_RT,
-                MIN_LOOP_LENGTH,
-                logger,
             )
         )
         == tuple
     )
     assert (
         type(
-            create_scoring_tables(
+            calculator._create_scoring_tables(
                 VALID_SEQ,
-                3,
-                BP_ENERGY_WEIGHT,
-                NORMALIZED_RT,
-                MIN_LOOP_LENGTH,
-                logger,
             )[0]
         )
         == np.ndarray
     )
     assert (
         type(
-            create_scoring_tables(
+            calculator._create_scoring_tables(
                 VALID_SEQ,
-                3,
-                BP_ENERGY_WEIGHT,
-                NORMALIZED_RT,
-                MIN_LOOP_LENGTH,
-                logger,
             )[1]
         )
         == np.ndarray
     )
-    assert create_scoring_tables(
+    assert calculator._create_scoring_tables(
         VALID_SEQ,
-        3,
-        BP_ENERGY_WEIGHT,
-        NORMALIZED_RT,
-        MIN_LOOP_LENGTH,
-        logger,
-    )[0].shape == (8, 8)
-    assert create_scoring_tables(
+    )[
+        0
+    ].shape == (8, 8)
+    assert calculator._create_scoring_tables(
         VALID_SEQ,
-        3,
-        BP_ENERGY_WEIGHT,
-        NORMALIZED_RT,
-        MIN_LOOP_LENGTH,
-        logger,
-    )[1].shape == (8, 8)
+    )[
+        1
+    ].shape == (8, 8)
     # TODO correct these tables
-    create_scoring_tables(
-        VALID_SEQ,
-        3,
-        BP_ENERGY_WEIGHT,
-        NORMALIZED_RT,
-        MIN_LOOP_LENGTH,
-        logger,
-    )[0].round(2) == np.array(
-        [
-            [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-            [1.0, 1.0, 1.0, 3.72, 9.15, 21.98, 24.7, 59.69],
-            [1.0, 1.0, 1.0, 1.0, 3.72, 6.44, 9.15, 19.26],
-            [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 3.72, 3.72],
-            [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-            [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-            [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-            [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
-        ]
+    np.testing.assert_array_equal(
+        calculator._create_scoring_tables(
+            VALID_SEQ,
+        )[
+            1
+        ].round(2),
+        np.array(
+            [
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 2.72, 2.72, 10.11, 0.0, 24.89],
+                [0.0, 0.0, 0.0, 2.72, 2.72, 2.72, 0.0, 10.11],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.72, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            ]
+        ),
+        verbose=True,
     )
-    create_scoring_tables(
-        VALID_SEQ,
-        3,
-        BP_ENERGY_WEIGHT,
-        NORMALIZED_RT,
-        MIN_LOOP_LENGTH,
-        logger,
-    )[1].round(2) == np.array(
-        [
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 2.72, 2.72, 10.11, 0.0, 24.89],
-            [0.0, 0.0, 0.0, 2.72, 2.72, 2.72, 0.0, 10.11],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.72, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        ]
+    np.testing.assert_array_equal(
+        calculator._create_scoring_tables(
+            VALID_SEQ,
+        )[
+            0
+        ].round(2),
+        np.array(
+            [
+                [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+                [1.0, 1.0, 1.0, 3.72, 9.15, 21.98, 24.7, 59.69],
+                [1.0, 1.0, 1.0, 1.0, 3.72, 6.44, 9.15, 19.26],
+                [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 3.72, 3.72],
+                [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+                [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+                [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+                [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+            ]
+        ),
     )
 
 
-def test_calc_paired_unpaired_probabilities():
+def test_calc_probabilities():
+    # testing only shapes of intermediate arrays because target values
+    # are already tested in test_create_probability_tables()
+    calculator = McCaskill(
+        sequence_data_path=SEQ_DATA_PATH,
+        bp_energy_weight=BP_ENERGY_WEIGHT,
+        normalized_rt=NORMALIZED_RT,
+        min_loop_length=MIN_LOOP_LENGTH,
+        iters=ITERS,
+        logger=logger,
+        verbose=False,
+    )
+    n = len(VALID_SEQ) + 1
+    q_unpaired = np.ones((n, n))
+    q_paired = np.zeros((n, n))
+    p_unpaired = np.zeros(q_unpaired.shape)
+    p_paired = np.zeros(q_paired.shape)
+    assert calculator._calc_probabilities(
+        p_unpaired, p_paired, q_unpaired, q_paired
+    )[0].shape == (n, n)
+    assert calculator._calc_probabilities(
+        p_unpaired, p_paired, q_unpaired, q_paired
+    )[1].shape == (n, n)
+
+
+def test_create_probability_tables():
+    calculator = McCaskill(
+        sequence_data_path=SEQ_DATA_PATH,
+        bp_energy_weight=BP_ENERGY_WEIGHT,
+        normalized_rt=NORMALIZED_RT,
+        min_loop_length=MIN_LOOP_LENGTH,
+        iters=ITERS,
+        logger=logger,
+        verbose=False,
+    )
     assert (
         type(
-            calc_paired_unpaired_probabilities(
-                *create_scoring_tables(
+            calculator._create_probability_tables(
+                *calculator._create_scoring_tables(
                     VALID_SEQ,
-                    3,
-                    BP_ENERGY_WEIGHT,
-                    NORMALIZED_RT,
-                    MIN_LOOP_LENGTH,
-                    logger,
                 ),
-                3,
-                BP_ENERGY_WEIGHT,
-                NORMALIZED_RT,
-                logger,
             )
         )
         == tuple
     )
     assert (
         type(
-            calc_paired_unpaired_probabilities(
-                *create_scoring_tables(
+            calculator._create_probability_tables(
+                *calculator._create_scoring_tables(
                     VALID_SEQ,
-                    3,
-                    BP_ENERGY_WEIGHT,
-                    NORMALIZED_RT,
-                    MIN_LOOP_LENGTH,
-                    logger,
                 ),
-                3,
-                BP_ENERGY_WEIGHT,
-                NORMALIZED_RT,
-                logger,
             )[0]
         )
         == np.ndarray
     )
     assert (
         type(
-            calc_paired_unpaired_probabilities(
-                *create_scoring_tables(
+            calculator._create_probability_tables(
+                *calculator._create_scoring_tables(
                     VALID_SEQ,
-                    3,
-                    BP_ENERGY_WEIGHT,
-                    NORMALIZED_RT,
-                    MIN_LOOP_LENGTH,
-                    logger,
                 ),
-                3,
-                BP_ENERGY_WEIGHT,
-                NORMALIZED_RT,
-                logger,
             )[1]
         )
         == np.ndarray
     )
-    assert calc_paired_unpaired_probabilities(
-        *create_scoring_tables(
+    assert calculator._create_probability_tables(
+        *calculator._create_scoring_tables(
             VALID_SEQ,
-            3,
-            BP_ENERGY_WEIGHT,
-            NORMALIZED_RT,
-            MIN_LOOP_LENGTH,
-            logger,
         ),
-        3,
-        BP_ENERGY_WEIGHT,
-        NORMALIZED_RT,
-        logger,
     )[0].shape == (7, 7)
-    assert calc_paired_unpaired_probabilities(
-        *create_scoring_tables(
+    assert calculator._create_probability_tables(
+        *calculator._create_scoring_tables(
             VALID_SEQ,
-            3,
-            BP_ENERGY_WEIGHT,
-            NORMALIZED_RT,
-            MIN_LOOP_LENGTH,
-            logger,
         ),
-        3,
-        BP_ENERGY_WEIGHT,
-        NORMALIZED_RT,
-        logger,
     )[1].shape == (7, 7)
     # TODO correct these tables
-    calc_paired_unpaired_probabilities(
-        *create_scoring_tables(
-            VALID_SEQ,
-            3,
-            BP_ENERGY_WEIGHT,
-            NORMALIZED_RT,
-            MIN_LOOP_LENGTH,
-            logger,
+    np.testing.assert_array_equal(
+        calculator._create_probability_tables(
+            *calculator._create_scoring_tables(
+                VALID_SEQ,
+            ),
+        )[0].round(2),
+        np.array(
+            [
+                [0.32, 0.06, 0.02, 0.02, 0.02, 0.02, 0.0],
+                [0.0, 0.06, 0.02, 0.02, 0.02, 0.02, 0.0],
+                [0.0, 0.0, 0.02, 0.02, 0.02, 0.02, 0.0],
+                [0.0, 0.0, 0.0, 0.06, 0.06, 0.06, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.15, 0.15, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.37, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            ]
         ),
-        3,
-        BP_ENERGY_WEIGHT,
-        NORMALIZED_RT,
-        logger,
-    )[0] == np.array(
-        [
-            [0.32, 0.06, 0.02, 0.02, 0.02, 0.02, 0.0],
-            [0.0, 0.06, 0.02, 0.02, 0.02, 0.02, 0.0],
-            [0.0, 0.0, 0.02, 0.02, 0.02, 0.02, 0.0],
-            [0.0, 0.0, 0.0, 0.06, 0.06, 0.06, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.15, 0.15, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.37, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        ]
     )
-    calc_paired_unpaired_probabilities(
-        *create_scoring_tables(
-            VALID_SEQ,
-            3,
-            BP_ENERGY_WEIGHT,
-            NORMALIZED_RT,
-            MIN_LOOP_LENGTH,
-            logger,
+    np.testing.assert_array_equal(
+        calculator._create_probability_tables(
+            *calculator._create_scoring_tables(
+                VALID_SEQ,
+            ),
+        )[1].round(2),
+        np.array(
+            [
+                [0.0, 0.0, 0.05, 0.05, 0.17, 0.0, 0.0],
+                [0.0, 0.0, 0.05, 0.05, 0.05, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.05, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            ]
         ),
-        3,
-        BP_ENERGY_WEIGHT,
-        NORMALIZED_RT,
-        logger,
-    )[1] == np.array(
-        [
-            [0.0, 0.0, 0.05, 0.05, 0.17, 0.0, 0.0],
-            [0.0, 0.0, 0.05, 0.05, 0.05, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.05, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        ]
     )
