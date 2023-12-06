@@ -301,7 +301,6 @@ def test_create_scoring_tables():
     )[
         1
     ].shape == (8, 8)
-    # TODO correct these tables
     np.testing.assert_array_equal(
         calculator._create_scoring_tables(
             VALID_SEQ,
@@ -422,7 +421,6 @@ def test_create_probability_tables():
             VALID_SEQ,
         ),
     )[1].shape == (7, 7)
-    # TODO correct these tables
     np.testing.assert_array_equal(
         calculator._create_probability_tables(
             *calculator._create_scoring_tables(

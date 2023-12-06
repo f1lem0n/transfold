@@ -91,6 +91,7 @@ def cli(version):
     cls=RichCommand,
 )
 def run():
+    # TODO add McCaskill algorithm
     pass
 
 
