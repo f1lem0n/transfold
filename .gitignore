@@ -1,6 +1,7 @@
 # Custom
 .vscode/
 sequence_data/
+structure_data/
 temp/
 transfold-test-venv/
 

@@ -47,6 +47,7 @@ clean:
 		transfold/modules/__pycache__ \
 		tests/__pycache__ \
 		tests/data/sequence_data/ \
+		tests/data/structure_data/ \
 		tests/data/temp \
 		tests/logs/ \
 		transfold-test-venv/ \
@@ -59,9 +60,8 @@ checksum:
 		\! -path "./.vscode/*" \
 		\! -path "./.git/*" \
 		\! -path "./logs/*" \
-		\! -path "./data/sequence_data/*" \
-		\! -path "./data/temp/*" \
 		\! -path "./tests/data/sequence_data/*" \
+		\! -path "./tests/data/structure_data/*" \
 		\! -path "./tests/data/temp/*" \
 		\! -path "./tests/logs/*" \
 		\! -path "./.pytest_cache/*" \
@@ -82,9 +82,8 @@ diff:
 		\! -path "./.vscode/*" \
 		\! -path "./.git/*" \
 		\! -path "./logs/*" \
-		\! -path "./data/sequence_data/*" \
-		\! -path "./data/temp/*" \
 		\! -path "./tests/data/sequence_data/*" \
+		\! -path "./tests/data/structure_data/*" \
 		\! -path "./tests/data/temp/*" \
 		\! -path "./tests/logs/*" \
 		\! -path "./.pytest_cache/*" \

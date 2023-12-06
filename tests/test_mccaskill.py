@@ -1,3 +1,6 @@
+import pickle
+import shutil
+from os import walk
 from pathlib import Path
 from time import localtime, strftime
 from typing import Generator
@@ -9,11 +12,13 @@ from transfold.modules.mccaskill import McCaskill
 
 # do not change these params
 SEQ_DATA_PATH = Path("tests/data/test_sequence_data/").absolute()
+OUTPUT_PATH = Path("tests/data/").absolute()
 LOGS_PATH = Path("tests/logs").absolute()
 MIN_LOOP_LENGTH = 1
 BP_ENERGY_WEIGHT = -1
 NORMALIZED_RT = 1
 ITERS = 5
+JOBS = 16
 VALID_SEQ = "GGUCCAC"
 INVALID_SEQ = "GGTCCACZ"
 
@@ -21,18 +26,93 @@ start_time = strftime("%Y-%m-%d_%H%M%S", localtime())
 logger = TransfoldLogger(LOGS_PATH, "test_mccaskill", start_time)
 
 
-def test_get_sequence_files():
+def test_McCaskill():
     calculator = McCaskill(
         sequence_data_path=SEQ_DATA_PATH,
+        output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
         min_loop_length=MIN_LOOP_LENGTH,
         iters=ITERS,
+        jobs=JOBS,
+        logger=logger,
+        verbose=False,
+    )
+    calculator.start()
+    generated = []
+    for prefix, _, suffixes in walk(
+        OUTPUT_PATH / "structure_data"
+    ):  # pragma: no cover
+        for suffix in suffixes:
+            generated.append(Path(prefix) / suffix)
+    reference = []
+    for prefix, _, suffixes in walk(
+        OUTPUT_PATH / "test_structure_data"
+    ):  # pragma: no cover
+        for suffix in suffixes:
+            reference.append(Path(prefix) / suffix)
+    for gen, ref in zip(
+        sorted(generated), sorted(reference)
+    ):  # pragma: no cover
+        with open(gen, "rb") as gen_file, open(ref, "rb") as ref_file:
+            gen_data = pickle.load(gen_file)
+            ref_data = pickle.load(ref_file)
+            np.testing.assert_array_equal(gen_data, ref_data)
+    # not deleting the generated files here because
+    # they are used in test_McCaskill_verbose()
+    # to also test if they are skipped correctly
+
+
+def test_McCaskill_verbose():
+    calculator = McCaskill(
+        sequence_data_path=SEQ_DATA_PATH,
+        output=OUTPUT_PATH,
+        bp_energy_weight=BP_ENERGY_WEIGHT,
+        normalized_rt=NORMALIZED_RT,
+        min_loop_length=MIN_LOOP_LENGTH,
+        iters=ITERS,
+        jobs=JOBS,
+        logger=logger,
+        verbose=True,
+    )
+    calculator.start()
+    generated = []
+    for prefix, _, suffixes in walk(
+        OUTPUT_PATH / "structure_data"
+    ):  # pragma: no cover
+        for suffix in suffixes:
+            generated.append(Path(prefix) / suffix)
+    reference = []
+    for prefix, _, suffixes in walk(
+        OUTPUT_PATH / "test_structure_data"
+    ):  # pragma: no cover
+        for suffix in suffixes:
+            reference.append(Path(prefix) / suffix)
+    for gen, ref in zip(
+        sorted(generated), sorted(reference)
+    ):  # pragma: no cover
+        with open(gen, "rb") as gen_file, open(ref, "rb") as ref_file:
+            gen_data = pickle.load(gen_file)
+            ref_data = pickle.load(ref_file)
+            np.testing.assert_array_equal(gen_data, ref_data)
+    if Path(OUTPUT_PATH / "structure_data").exists():  # pragma: no cover
+        shutil.rmtree(OUTPUT_PATH / "structure_data")
+
+
+def test_get_sequence_filepaths():
+    calculator = McCaskill(
+        sequence_data_path=SEQ_DATA_PATH,
+        output=OUTPUT_PATH,
+        bp_energy_weight=BP_ENERGY_WEIGHT,
+        normalized_rt=NORMALIZED_RT,
+        min_loop_length=MIN_LOOP_LENGTH,
+        iters=ITERS,
+        jobs=JOBS,
         logger=logger,
         verbose=False,
     )
     assert isinstance(calculator._get_sequence_filepaths(), Generator)
-    assert len(list(calculator._get_sequence_filepaths())) == 4
+    assert len(list(calculator._get_sequence_filepaths())) == 5
     assert str(sorted(list(calculator._get_sequence_filepaths()))[0]) == str(
         SEQ_DATA_PATH / "a.1.1.1" / "1ux8" / "data" / "gene.fna"
     )
@@ -43,17 +123,82 @@ def test_get_sequence_files():
         SEQ_DATA_PATH / "a.1.1.1" / "2gl3" / "data" / "gene.fna"
     )
     assert str(sorted(list(calculator._get_sequence_filepaths()))[3]) == str(
+        SEQ_DATA_PATH / "a.1.1.2" / "1idr" / "data" / "cds.fna"
+    )
+    assert str(sorted(list(calculator._get_sequence_filepaths()))[4]) == str(
         SEQ_DATA_PATH / "a.1.1.2" / "1idr" / "data" / "gene.fna"
     )
+
+
+def test_get_sequences():
+    calculator = McCaskill(
+        sequence_data_path=SEQ_DATA_PATH,
+        output=OUTPUT_PATH,
+        bp_energy_weight=BP_ENERGY_WEIGHT,
+        normalized_rt=NORMALIZED_RT,
+        min_loop_length=MIN_LOOP_LENGTH,
+        iters=ITERS,
+        jobs=JOBS,
+        logger=logger,
+        verbose=False,
+    )
+    assert isinstance(calculator._get_sequences(), Generator)
+    assert len(list(calculator._get_sequences())) == 7
+
+
+def test_get_structure(capfd):
+    calculator = McCaskill(
+        sequence_data_path=SEQ_DATA_PATH,
+        output=OUTPUT_PATH,
+        bp_energy_weight=BP_ENERGY_WEIGHT,
+        normalized_rt=NORMALIZED_RT,
+        min_loop_length=MIN_LOOP_LENGTH,
+        iters=ITERS,
+        jobs=JOBS,
+        logger=logger,
+        verbose=False,
+    )
+    seq, category, pdb_id, source, idx = list(calculator._get_sequences())[1]
+    calculator._get_structure(seq, category, pdb_id, source, idx)
+    # second time should be skipped
+    calculator._get_structure(seq, category, pdb_id, source, idx)
+    with open(
+        OUTPUT_PATH
+        / "test_structure_data"
+        / "a.1.1.1"
+        / "1ux8"
+        / "gene"
+        / "structure_1.pickle",
+        "rb",
+    ) as ref_file, open(
+        OUTPUT_PATH
+        / "structure_data"
+        / "a.1.1.1"
+        / "1ux8"
+        / "gene"
+        / "structure_1.pickle",
+        "rb",
+    ) as gen_file:
+        ref_data = pickle.load(ref_file)
+        gen_data = pickle.load(gen_file)
+        np.testing.assert_array_equal(gen_data, ref_data)
+    out, err = capfd.readouterr()
+    del out, err
+    seq, category, pdb_id, source, idx = list(calculator._get_sequences())[3]
+    calculator._get_structure(seq, category, pdb_id, source, idx)
+    if Path(OUTPUT_PATH / "structure_data").exists():  # pragma: no cover
+        shutil.rmtree(OUTPUT_PATH / "structure_data")
 
 
 def test_check_sequence():
     calculator = McCaskill(
         sequence_data_path=SEQ_DATA_PATH,
+        output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
         min_loop_length=MIN_LOOP_LENGTH,
         iters=ITERS,
+        jobs=JOBS,
         logger=logger,
         verbose=False,
     )
@@ -64,10 +209,12 @@ def test_check_sequence():
 def test_check_pairing():
     calculator = McCaskill(
         sequence_data_path=SEQ_DATA_PATH,
+        output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
         min_loop_length=MIN_LOOP_LENGTH,
         iters=ITERS,
+        jobs=JOBS,
         logger=logger,
         verbose=False,
     )
@@ -88,10 +235,12 @@ def test_calc_scores():
     # are already tested in test_create_scoring_tables()
     calculator = McCaskill(
         sequence_data_path=SEQ_DATA_PATH,
+        output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
         min_loop_length=MIN_LOOP_LENGTH,
         iters=ITERS,
+        jobs=JOBS,
         logger=logger,
         verbose=False,
     )
@@ -109,10 +258,12 @@ def test_calc_scores():
 def test_create_scoring_tables():
     calculator = McCaskill(
         sequence_data_path=SEQ_DATA_PATH,
+        output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
         min_loop_length=MIN_LOOP_LENGTH,
         iters=ITERS,
+        jobs=JOBS,
         logger=logger,
         verbose=False,
     )
@@ -197,10 +348,12 @@ def test_calc_probabilities():
     # are already tested in test_create_probability_tables()
     calculator = McCaskill(
         sequence_data_path=SEQ_DATA_PATH,
+        output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
         min_loop_length=MIN_LOOP_LENGTH,
         iters=ITERS,
+        jobs=JOBS,
         logger=logger,
         verbose=False,
     )
@@ -220,10 +373,12 @@ def test_calc_probabilities():
 def test_create_probability_tables():
     calculator = McCaskill(
         sequence_data_path=SEQ_DATA_PATH,
+        output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
         min_loop_length=MIN_LOOP_LENGTH,
         iters=ITERS,
+        jobs=JOBS,
         logger=logger,
         verbose=False,
     )
