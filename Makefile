@@ -32,7 +32,7 @@ format:
 	@echo "Sorting imports..."
 	@isort --profile black -l 79 transfold/ tests/ setup.py
 	@echo "Formatting code..."
-	@black -l 79 -t py312 --safe transfold/ tests/ setup.py
+	@black -l 79 -t py312 --safe transfold/ tests/ demo/ setup.py
 
 lint:
 	@flake8 transfold/ tests/ setup.py

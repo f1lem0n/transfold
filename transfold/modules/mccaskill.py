@@ -1,10 +1,10 @@
-import pickle
+import json
 from concurrent.futures import ProcessPoolExecutor
+from dataclasses import asdict, dataclass
 from logging import Logger
 from os import walk
 from pathlib import Path
 from typing import Generator
-from dataclasses import dataclass
 
 import numpy as np
 from Bio import SeqIO  # type: ignore
@@ -200,7 +200,7 @@ class McCaskill(object):
                 if suffix.endswith(".fna"):
                     yield Path(prefix) / suffix
 
-    def _get_sequences(self) -> Generator:
+    def _get_sequences_and_metadata(self) -> Generator:
         for sequence_filepath in sorted(list(self._get_sequence_filepaths())):
             sequence_filepath = Path(sequence_filepath)
             category = sequence_filepath.parent.parent.parent.name
@@ -237,7 +237,7 @@ class McCaskill(object):
             / source
             / f"structure_{idx}"
         ).absolute()
-        output = Path(str(output) + ".pickle")
+        output = Path(str(output) + ".json")
         if Path(output).exists():
             self.logger.debug(f"Skipping {output} as it already exists")
             return None
@@ -256,12 +256,13 @@ class McCaskill(object):
             category=category,
             description=description,
             seq=seq,
-            structure=np.array([p_unpaired, p_paired]),
+            structure=np.array([p_unpaired, p_paired]).tolist(),
         )
+        # save structure to json file under category/pdb_id/source/
         if not Path(output).parent.exists():
             Path(output).parent.mkdir(parents=True)
-        with open(output, "wb") as file:
-            pickle.dump(structure_data, file)
+        with open(output, "w") as file:
+            json.dump(asdict(structure_data), file, indent=4)
         return Writeable()
 
     def start(self) -> Writeable:
@@ -279,7 +280,9 @@ class McCaskill(object):
         )
         with ProcessPoolExecutor(max_workers=self.jobs) as executor:
             if not self.verbose:
-                with tqdm(total=len(list(self._get_sequences()))) as progress:
+                with tqdm(
+                    total=len(list(self._get_sequences_and_metadata()))
+                ) as progress:
                     futures = []
                     for (
                         seq,
@@ -288,7 +291,7 @@ class McCaskill(object):
                         pdb_id,
                         source,
                         idx,
-                    ) in self._get_sequences():
+                    ) in self._get_sequences_and_metadata():
                         future = executor.submit(
                             self._get_structure,
                             seq,
@@ -312,7 +315,7 @@ class McCaskill(object):
                     pdb_id,
                     source,
                     idx,
-                ) in self._get_sequences():
+                ) in self._get_sequences_and_metadata():
                     executor.submit(
                         self._get_structure,
                         seq,

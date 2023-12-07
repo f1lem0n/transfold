@@ -1,4 +1,4 @@
-import pickle
+import json
 import shutil
 from os import walk
 from pathlib import Path
@@ -55,11 +55,9 @@ def test_McCaskill():
         sorted(generated), sorted(reference)
     ):  # pragma: no cover
         with open(gen, "rb") as gen_file, open(ref, "rb") as ref_file:
-            gen_data = pickle.load(gen_file)
-            ref_data = pickle.load(ref_file)
-            np.testing.assert_array_equal(
-                gen_data.structure, ref_data.structure
-            )
+            gen_data = json.load(gen_file)
+            ref_data = json.load(ref_file)
+            assert gen_data == ref_data
     # not deleting the generated files here because
     # they are used in test_McCaskill_verbose()
     # to also test if they are skipped correctly
@@ -94,11 +92,9 @@ def test_McCaskill_verbose():
         sorted(generated), sorted(reference)
     ):  # pragma: no cover
         with open(gen, "rb") as gen_file, open(ref, "rb") as ref_file:
-            gen_data = pickle.load(gen_file)
-            ref_data = pickle.load(ref_file)
-            np.testing.assert_array_equal(
-                gen_data.structure, ref_data.structure
-            )
+            gen_data = json.load(gen_file)
+            ref_data = json.load(ref_file)
+            assert gen_data == ref_data
     if Path(OUTPUT_PATH / "structure_data").exists():  # pragma: no cover
         shutil.rmtree(OUTPUT_PATH / "structure_data")
 
@@ -146,8 +142,8 @@ def test_get_sequences():
         logger=logger,
         verbose=False,
     )
-    assert isinstance(calculator._get_sequences(), Generator)
-    assert len(list(calculator._get_sequences())) == 7
+    assert isinstance(calculator._get_sequences_and_metadata(), Generator)
+    assert len(list(calculator._get_sequences_and_metadata())) == 7
 
 
 def test_get_structure():
@@ -163,7 +159,7 @@ def test_get_structure():
         verbose=False,
     )
     seq, description, category, pdb_id, source, idx = list(
-        calculator._get_sequences()
+        calculator._get_sequences_and_metadata()
     )[1]
     calculator._get_structure(seq, description, category, pdb_id, source, idx)
     # second time should be skipped
@@ -174,7 +170,7 @@ def test_get_structure():
         / "a.1.1.1"
         / "1ux8"
         / "gene"
-        / "structure_1.pickle",
+        / "structure_1.json",
         "rb",
     ) as ref_file, open(
         OUTPUT_PATH
@@ -182,14 +178,14 @@ def test_get_structure():
         / "a.1.1.1"
         / "1ux8"
         / "gene"
-        / "structure_1.pickle",
+        / "structure_1.json",
         "rb",
     ) as gen_file:
-        ref_data = pickle.load(ref_file)
-        gen_data = pickle.load(gen_file)
-        np.testing.assert_array_equal(gen_data.structure, ref_data.structure)
+        gen_data = json.load(gen_file)
+        ref_data = json.load(ref_file)
+        assert gen_data == ref_data
     seq, description, category, pdb_id, source, idx = list(
-        calculator._get_sequences()
+        calculator._get_sequences_and_metadata()
     )[3]
     calculator._get_structure(seq, description, category, pdb_id, source, idx)
     assert not Path(
@@ -198,7 +194,7 @@ def test_get_structure():
         / "a.1.1.1"
         / "2gkm"
         / "gene"
-        / "structure_1.pickle"
+        / "structure_1.json"
     ).exists()
     if Path(OUTPUT_PATH / "structure_data").exists():  # pragma: no cover
         shutil.rmtree(OUTPUT_PATH / "structure_data")
