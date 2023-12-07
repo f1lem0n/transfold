@@ -4,6 +4,7 @@ sequence_data/
 structure_data/
 temp/
 transfold-test-venv/
+*.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

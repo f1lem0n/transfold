@@ -4,6 +4,7 @@ from logging import Logger
 from os import walk
 from pathlib import Path
 from typing import Generator
+from dataclasses import dataclass
 
 import numpy as np
 from Bio import SeqIO  # type: ignore
@@ -14,10 +15,13 @@ class Writeable:  # pragma: no cover
     ...
 
 
-class Structure(object):  # pragma: no cover
-    # TODO implement structure object that holds structure and its metadata
-    def __init__(self):
-        ...
+@dataclass
+class Structure:  # pragma: no cover
+    pdb_id: str
+    category: str
+    description: str
+    seq: str
+    structure: np.ndarray
 
 
 class McCaskill(object):
@@ -207,10 +211,23 @@ class McCaskill(object):
             for idx, record in enumerate(fasta_file):
                 self.logger.debug(f"Description: {record.description}")
                 self.logger.debug(f"Sequence: {record.seq}")
-                yield record.seq, category, pdb_id, source, idx
+                yield (
+                    record.seq,
+                    record.description,
+                    category,
+                    pdb_id,
+                    source,
+                    idx,
+                )
 
     def _get_structure(
-        self, seq: str, category: str, pdb_id: str, source: str, idx: int
+        self,
+        seq: str,
+        description: str,
+        category: str,
+        pdb_id: str,
+        source: str,
+        idx: int,
     ) -> Writeable | None:
         output = (
             self.output
@@ -234,11 +251,17 @@ class McCaskill(object):
             q_paired=q_paired,
         )
         self.logger.debug(f"Saving structure at: {output}")
-        structure = np.array([p_unpaired, p_paired])
+        structure_data = Structure(
+            pdb_id=pdb_id,
+            category=category,
+            description=description,
+            seq=seq,
+            structure=np.array([p_unpaired, p_paired]),
+        )
         if not Path(output).parent.exists():
             Path(output).parent.mkdir(parents=True)
         with open(output, "wb") as file:
-            pickle.dump(structure, file)
+            pickle.dump(structure_data, file)
         return Writeable()
 
     def start(self) -> Writeable:
@@ -260,6 +283,7 @@ class McCaskill(object):
                     futures = []
                     for (
                         seq,
+                        description,
                         category,
                         pdb_id,
                         source,
@@ -268,6 +292,7 @@ class McCaskill(object):
                         future = executor.submit(
                             self._get_structure,
                             seq,
+                            description,
                             category,
                             pdb_id,
                             source,
@@ -282,6 +307,7 @@ class McCaskill(object):
             else:
                 for (
                     seq,
+                    description,
                     category,
                     pdb_id,
                     source,
@@ -290,6 +316,7 @@ class McCaskill(object):
                     executor.submit(
                         self._get_structure,
                         seq,
+                        description,
                         category,
                         pdb_id,
                         source,

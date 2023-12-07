@@ -57,7 +57,9 @@ def test_McCaskill():
         with open(gen, "rb") as gen_file, open(ref, "rb") as ref_file:
             gen_data = pickle.load(gen_file)
             ref_data = pickle.load(ref_file)
-            np.testing.assert_array_equal(gen_data, ref_data)
+            np.testing.assert_array_equal(
+                gen_data.structure, ref_data.structure
+            )
     # not deleting the generated files here because
     # they are used in test_McCaskill_verbose()
     # to also test if they are skipped correctly
@@ -94,7 +96,9 @@ def test_McCaskill_verbose():
         with open(gen, "rb") as gen_file, open(ref, "rb") as ref_file:
             gen_data = pickle.load(gen_file)
             ref_data = pickle.load(ref_file)
-            np.testing.assert_array_equal(gen_data, ref_data)
+            np.testing.assert_array_equal(
+                gen_data.structure, ref_data.structure
+            )
     if Path(OUTPUT_PATH / "structure_data").exists():  # pragma: no cover
         shutil.rmtree(OUTPUT_PATH / "structure_data")
 
@@ -146,7 +150,7 @@ def test_get_sequences():
     assert len(list(calculator._get_sequences())) == 7
 
 
-def test_get_structure(capfd):
+def test_get_structure():
     calculator = McCaskill(
         sequence_data_path=SEQ_DATA_PATH,
         output=OUTPUT_PATH,
@@ -158,10 +162,12 @@ def test_get_structure(capfd):
         logger=logger,
         verbose=False,
     )
-    seq, category, pdb_id, source, idx = list(calculator._get_sequences())[1]
-    calculator._get_structure(seq, category, pdb_id, source, idx)
+    seq, description, category, pdb_id, source, idx = list(
+        calculator._get_sequences()
+    )[1]
+    calculator._get_structure(seq, description, category, pdb_id, source, idx)
     # second time should be skipped
-    calculator._get_structure(seq, category, pdb_id, source, idx)
+    calculator._get_structure(seq, description, category, pdb_id, source, idx)
     with open(
         OUTPUT_PATH
         / "test_structure_data"
@@ -181,11 +187,19 @@ def test_get_structure(capfd):
     ) as gen_file:
         ref_data = pickle.load(ref_file)
         gen_data = pickle.load(gen_file)
-        np.testing.assert_array_equal(gen_data, ref_data)
-    out, err = capfd.readouterr()
-    del out, err
-    seq, category, pdb_id, source, idx = list(calculator._get_sequences())[3]
-    calculator._get_structure(seq, category, pdb_id, source, idx)
+        np.testing.assert_array_equal(gen_data.structure, ref_data.structure)
+    seq, description, category, pdb_id, source, idx = list(
+        calculator._get_sequences()
+    )[3]
+    calculator._get_structure(seq, description, category, pdb_id, source, idx)
+    assert not Path(
+        OUTPUT_PATH
+        / "structure_data"
+        / "a.1.1.1"
+        / "2gkm"
+        / "gene"
+        / "structure_1.pickle"
+    ).exists()
     if Path(OUTPUT_PATH / "structure_data").exists():  # pragma: no cover
         shutil.rmtree(OUTPUT_PATH / "structure_data")
 
