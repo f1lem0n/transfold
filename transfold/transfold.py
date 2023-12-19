@@ -8,6 +8,7 @@ from rich.console import Console
 from transfold._version import __version__
 from transfold.modules.downloaders import SequenceDataDownloader
 from transfold.modules.logger import TransfoldLogger
+from transfold.modules.mccaskill import McCaskill
 
 ASCII = r"""
  /$$$$$$$$                                      /$$$$$$          /$$       /$$
@@ -42,14 +43,16 @@ class RichGroup(click.Group):
             if len(default_value) > 10:
                 default_value = default_value[:7] + "..."
             console.print(
-                f"\t{param.get_help_record(ctx)[0]:<25}"
-                f"{'[ ' + default_value + ' ]':<20}"
+                f"\t{param.get_help_record(ctx)[0]:<40}"
+                f"{'[ ' + default_value + ' ]':<25}"
                 f"{param.get_help_record(ctx)[1]:<40}"
             )
         console.print("\nCommands:")
         for cmd_name in self.list_commands(ctx):
             cmd = self.get_command(ctx, cmd_name)
-            console.print(f"\t{cmd_name:<45}{cmd.get_short_help_str(ctx):<40}")
+            console.print(
+                f"\t{cmd_name:<65}" f"{cmd.get_short_help_str(ctx):<40}"
+            )
         console.print("\n")
         formatter.write(sio.getvalue())
 
@@ -65,8 +68,8 @@ class RichCommand(click.Command):
             if len(default_value) > 10:
                 default_value = default_value[:7] + "..."
             console.print(
-                f"\t{param.get_help_record(ctx)[0]:<25}"
-                f"{'[ ' + default_value + ' ]':<20}"
+                f"\t{param.get_help_record(ctx)[0]:<40}"
+                f"{'[ ' + default_value + ' ]':<25}"
                 f"{param.get_help_record(ctx)[1]:<40}"
             )
         formatter.write(sio.getvalue())
@@ -85,14 +88,100 @@ def cli(version):
 
 
 @cli.command(
-    "run",
+    "calc",
     context_settings=dict(ignore_unknown_options=True),
-    short_help="Run Transfold",
+    short_help="Run McCaskill algorithm to calculate bp probabilities",
     cls=RichCommand,
 )
-def run():
+@click.option(
+    "--input",
+    "-i",
+    default=Path(__file__).parent.absolute() / "data",
+    help="Path to input directory",
+    type=Path,
+)
+@click.option(
+    "--output",
+    "-o",
+    default=Path(__file__).parent.absolute() / "data",
+    help="Path to output directory",
+    type=Path,
+)
+@click.option(
+    "--bp-energy-weight",
+    "-b",
+    default=-1,
+    help="Base pair energy weight",
+    type=float,
+)
+@click.option(
+    "--normalized-rt",
+    "-n",
+    default=1,
+    help="Normalized RT",
+    type=float,
+)
+@click.option(
+    "--min-loop-length",
+    "-m",
+    default=1,
+    help="Minimum loop length",
+    type=int,
+)
+@click.option(
+    "--iters",
+    "-t",
+    default=5,
+    help="Number of iterations",
+    type=int,
+)
+@click.option(
+    "--jobs",
+    "-j",
+    default=1,
+    help="Number of concurrent jobs",
+    type=int,
+)
+@click.option(
+    "--log",
+    "-l",
+    default=Path(".").absolute() / "logs",
+    help="Path to logs output directory",
+    type=Path,
+)
+@click.option(
+    "--verbose",
+    "-v",
+    is_flag=True,
+    default=False,
+    help="Print debug messages to stdout",
+)
+def run(
+    input,
+    output,
+    bp_energy_weight,
+    normalized_rt,
+    min_loop_length,
+    iters,
+    jobs,
+    log,
+    verbose,
+):
     # TODO add McCaskill algorithm
-    pass
+    start_time = strftime(r"%Y-%m-%d_%H%M%S", localtime())
+    logger = TransfoldLogger(Path(log).absolute(), "calc", start_time, verbose)
+    calculator = McCaskill(
+        input=input,
+        output=output,
+        bp_energy_weight=bp_energy_weight,
+        normalized_rt=normalized_rt,
+        min_loop_length=min_loop_length,
+        iters=iters,
+        jobs=jobs,
+        logger=logger,
+        verbose=verbose,
+    )
+    calculator.start()
 
 
 @cli.command(

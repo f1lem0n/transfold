@@ -32,7 +32,7 @@ class McCaskill(object):
 
     def __init__(
         self,
-        sequence_data_path: Path,
+        input: Path,
         output: Path,
         bp_energy_weight: int,
         normalized_rt: int,
@@ -42,7 +42,7 @@ class McCaskill(object):
         logger: Logger,
         verbose=False,
     ):
-        self.sequence_data_path = sequence_data_path
+        self.sequence_data_path = input
         self.output = output
         self.iters = iters
         self.bp_energy_weight = bp_energy_weight

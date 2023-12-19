@@ -28,7 +28,7 @@ logger = TransfoldLogger(LOGS_PATH, "test_mccaskill", start_time)
 
 def test_McCaskill():
     calculator = McCaskill(
-        sequence_data_path=SEQ_DATA_PATH,
+        input=SEQ_DATA_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -65,7 +65,7 @@ def test_McCaskill():
 
 def test_McCaskill_verbose():
     calculator = McCaskill(
-        sequence_data_path=SEQ_DATA_PATH,
+        input=SEQ_DATA_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -101,7 +101,7 @@ def test_McCaskill_verbose():
 
 def test_get_sequence_filepaths():
     calculator = McCaskill(
-        sequence_data_path=SEQ_DATA_PATH,
+        input=SEQ_DATA_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -132,7 +132,7 @@ def test_get_sequence_filepaths():
 
 def test_get_sequences():
     calculator = McCaskill(
-        sequence_data_path=SEQ_DATA_PATH,
+        input=SEQ_DATA_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -148,7 +148,7 @@ def test_get_sequences():
 
 def test_get_structure():
     calculator = McCaskill(
-        sequence_data_path=SEQ_DATA_PATH,
+        input=SEQ_DATA_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -202,7 +202,7 @@ def test_get_structure():
 
 def test_check_sequence():
     calculator = McCaskill(
-        sequence_data_path=SEQ_DATA_PATH,
+        input=SEQ_DATA_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -218,7 +218,7 @@ def test_check_sequence():
 
 def test_check_pairing():
     calculator = McCaskill(
-        sequence_data_path=SEQ_DATA_PATH,
+        input=SEQ_DATA_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -244,7 +244,7 @@ def test_calc_scores():
     # testing only shapes of intermediate arrays because target values
     # are already tested in test_create_scoring_tables()
     calculator = McCaskill(
-        sequence_data_path=SEQ_DATA_PATH,
+        input=SEQ_DATA_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -267,7 +267,7 @@ def test_calc_scores():
 
 def test_create_scoring_tables():
     calculator = McCaskill(
-        sequence_data_path=SEQ_DATA_PATH,
+        input=SEQ_DATA_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -356,7 +356,7 @@ def test_calc_probabilities():
     # testing only shapes of intermediate arrays because target values
     # are already tested in test_create_probability_tables()
     calculator = McCaskill(
-        sequence_data_path=SEQ_DATA_PATH,
+        input=SEQ_DATA_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -381,7 +381,7 @@ def test_calc_probabilities():
 
 def test_create_probability_tables():
     calculator = McCaskill(
-        sequence_data_path=SEQ_DATA_PATH,
+        input=SEQ_DATA_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
