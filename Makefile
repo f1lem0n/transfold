@@ -60,6 +60,7 @@ checksum:
 		\! -path "./.vscode/*" \
 		\! -path "./.git/*" \
 		\! -path "./logs/*" \
+		\! -path "./demo/data/*" \
 		\! -path "./tests/data/sequence_data/*" \
 		\! -path "./tests/data/structure_data/*" \
 		\! -path "./tests/data/temp/*" \
@@ -82,6 +83,7 @@ diff:
 		\! -path "./.vscode/*" \
 		\! -path "./.git/*" \
 		\! -path "./logs/*" \
+		\! -path "./demo/data/*" \
 		\! -path "./tests/data/sequence_data/*" \
 		\! -path "./tests/data/structure_data/*" \
 		\! -path "./tests/data/temp/*" \
