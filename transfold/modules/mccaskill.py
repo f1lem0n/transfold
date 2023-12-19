@@ -42,7 +42,7 @@ class McCaskill(object):
         logger: Logger,
         verbose=False,
     ):
-        self.sequence_data_path = input
+        self.input = input
         self.output = output
         self.iters = iters
         self.bp_energy_weight = bp_energy_weight
@@ -195,7 +195,7 @@ class McCaskill(object):
         return p_unpaired[1:, 1:], p_paired[1:, 1:]
 
     def _get_sequence_filepaths(self) -> Generator:
-        for prefix, _, suffixes in walk(self.sequence_data_path):
+        for prefix, _, suffixes in walk(self.input):
             for suffix in suffixes:
                 if suffix.endswith(".fna"):
                     yield Path(prefix) / suffix
@@ -230,12 +230,7 @@ class McCaskill(object):
         idx: int,
     ) -> Writeable | None:
         output = (
-            self.output
-            / "structure_data"
-            / category
-            / pdb_id
-            / source
-            / f"structure_{idx}"
+            self.output / category / pdb_id / source / f"structure_{idx}"
         ).absolute()
         output = Path(str(output) + ".json")
         if Path(output).exists():
@@ -268,7 +263,7 @@ class McCaskill(object):
     def start(self) -> Writeable:
         self.logger.info(
             "Starting structure calculation "
-            f"from sequence data at: {self.sequence_data_path}"
+            f"from sequence data at: {self.input}"
         )
         self.logger.info(
             f"PARAMS:\n"

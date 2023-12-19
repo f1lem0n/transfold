@@ -11,8 +11,9 @@ from transfold.modules.logger import TransfoldLogger
 from transfold.modules.mccaskill import McCaskill
 
 # do not change these params
-SEQ_DATA_PATH = Path("tests/data/test_sequence_data/").absolute()
-OUTPUT_PATH = Path("tests/data/").absolute()
+INPUT_PATH = Path("tests/data/test_sequence_data/").absolute()
+OUTPUT_PATH = Path("tests/data/structure_data").absolute()
+REF_PATH = Path("tests/data/test_structure_data/").absolute()
 LOGS_PATH = Path("tests/logs").absolute()
 MIN_LOOP_LENGTH = 1
 BP_ENERGY_WEIGHT = -1
@@ -28,7 +29,7 @@ logger = TransfoldLogger(LOGS_PATH, "test_mccaskill", start_time)
 
 def test_McCaskill():
     calculator = McCaskill(
-        input=SEQ_DATA_PATH,
+        input=INPUT_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -40,9 +41,7 @@ def test_McCaskill():
     )
     calculator.start()
     generated = []
-    for prefix, _, suffixes in walk(
-        OUTPUT_PATH / "structure_data"
-    ):  # pragma: no cover
+    for prefix, _, suffixes in walk(OUTPUT_PATH):  # pragma: no cover
         for suffix in suffixes:
             generated.append(Path(prefix) / suffix)
     reference = []
@@ -65,7 +64,7 @@ def test_McCaskill():
 
 def test_McCaskill_verbose():
     calculator = McCaskill(
-        input=SEQ_DATA_PATH,
+        input=INPUT_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -77,9 +76,7 @@ def test_McCaskill_verbose():
     )
     calculator.start()
     generated = []
-    for prefix, _, suffixes in walk(
-        OUTPUT_PATH / "structure_data"
-    ):  # pragma: no cover
+    for prefix, _, suffixes in walk(OUTPUT_PATH):  # pragma: no cover
         for suffix in suffixes:
             generated.append(Path(prefix) / suffix)
     reference = []
@@ -95,13 +92,13 @@ def test_McCaskill_verbose():
             gen_data = json.load(gen_file)
             ref_data = json.load(ref_file)
             assert gen_data == ref_data
-    if Path(OUTPUT_PATH / "structure_data").exists():  # pragma: no cover
-        shutil.rmtree(OUTPUT_PATH / "structure_data")
+    if Path(OUTPUT_PATH).exists():  # pragma: no cover
+        shutil.rmtree(OUTPUT_PATH)
 
 
 def test_get_sequence_filepaths():
     calculator = McCaskill(
-        input=SEQ_DATA_PATH,
+        input=INPUT_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -114,25 +111,25 @@ def test_get_sequence_filepaths():
     assert isinstance(calculator._get_sequence_filepaths(), Generator)
     assert len(list(calculator._get_sequence_filepaths())) == 5
     assert str(sorted(list(calculator._get_sequence_filepaths()))[0]) == str(
-        SEQ_DATA_PATH / "a.1.1.1" / "1ux8" / "data" / "gene.fna"
+        INPUT_PATH / "a.1.1.1" / "1ux8" / "data" / "gene.fna"
     )
     assert str(sorted(list(calculator._get_sequence_filepaths()))[1]) == str(
-        SEQ_DATA_PATH / "a.1.1.1" / "2gkm" / "data" / "gene.fna"
+        INPUT_PATH / "a.1.1.1" / "2gkm" / "data" / "gene.fna"
     )
     assert str(sorted(list(calculator._get_sequence_filepaths()))[2]) == str(
-        SEQ_DATA_PATH / "a.1.1.1" / "2gl3" / "data" / "gene.fna"
+        INPUT_PATH / "a.1.1.1" / "2gl3" / "data" / "gene.fna"
     )
     assert str(sorted(list(calculator._get_sequence_filepaths()))[3]) == str(
-        SEQ_DATA_PATH / "a.1.1.2" / "1idr" / "data" / "cds.fna"
+        INPUT_PATH / "a.1.1.2" / "1idr" / "data" / "cds.fna"
     )
     assert str(sorted(list(calculator._get_sequence_filepaths()))[4]) == str(
-        SEQ_DATA_PATH / "a.1.1.2" / "1idr" / "data" / "gene.fna"
+        INPUT_PATH / "a.1.1.2" / "1idr" / "data" / "gene.fna"
     )
 
 
 def test_get_sequences():
     calculator = McCaskill(
-        input=SEQ_DATA_PATH,
+        input=INPUT_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -148,7 +145,7 @@ def test_get_sequences():
 
 def test_get_structure():
     calculator = McCaskill(
-        input=SEQ_DATA_PATH,
+        input=INPUT_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -165,20 +162,10 @@ def test_get_structure():
     # second time should be skipped
     calculator._get_structure(seq, description, category, pdb_id, source, idx)
     with open(
-        OUTPUT_PATH
-        / "test_structure_data"
-        / "a.1.1.1"
-        / "1ux8"
-        / "gene"
-        / "structure_1.json",
+        REF_PATH / "a.1.1.1" / "1ux8" / "gene" / "structure_1.json",
         "rb",
     ) as ref_file, open(
-        OUTPUT_PATH
-        / "structure_data"
-        / "a.1.1.1"
-        / "1ux8"
-        / "gene"
-        / "structure_1.json",
+        OUTPUT_PATH / "a.1.1.1" / "1ux8" / "gene" / "structure_1.json",
         "rb",
     ) as gen_file:
         gen_data = json.load(gen_file)
@@ -189,20 +176,15 @@ def test_get_structure():
     )[3]
     calculator._get_structure(seq, description, category, pdb_id, source, idx)
     assert not Path(
-        OUTPUT_PATH
-        / "structure_data"
-        / "a.1.1.1"
-        / "2gkm"
-        / "gene"
-        / "structure_1.json"
+        OUTPUT_PATH / "a.1.1.1" / "2gkm" / "gene" / "structure_1.json"
     ).exists()
-    if Path(OUTPUT_PATH / "structure_data").exists():  # pragma: no cover
-        shutil.rmtree(OUTPUT_PATH / "structure_data")
+    if Path(OUTPUT_PATH).exists():  # pragma: no cover
+        shutil.rmtree(OUTPUT_PATH)
 
 
 def test_check_sequence():
     calculator = McCaskill(
-        input=SEQ_DATA_PATH,
+        input=INPUT_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -218,7 +200,7 @@ def test_check_sequence():
 
 def test_check_pairing():
     calculator = McCaskill(
-        input=SEQ_DATA_PATH,
+        input=INPUT_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -244,7 +226,7 @@ def test_calc_scores():
     # testing only shapes of intermediate arrays because target values
     # are already tested in test_create_scoring_tables()
     calculator = McCaskill(
-        input=SEQ_DATA_PATH,
+        input=INPUT_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -267,7 +249,7 @@ def test_calc_scores():
 
 def test_create_scoring_tables():
     calculator = McCaskill(
-        input=SEQ_DATA_PATH,
+        input=INPUT_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -356,7 +338,7 @@ def test_calc_probabilities():
     # testing only shapes of intermediate arrays because target values
     # are already tested in test_create_probability_tables()
     calculator = McCaskill(
-        input=SEQ_DATA_PATH,
+        input=INPUT_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,
@@ -381,7 +363,7 @@ def test_calc_probabilities():
 
 def test_create_probability_tables():
     calculator = McCaskill(
-        input=SEQ_DATA_PATH,
+        input=INPUT_PATH,
         output=OUTPUT_PATH,
         bp_energy_weight=BP_ENERGY_WEIGHT,
         normalized_rt=NORMALIZED_RT,

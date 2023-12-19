@@ -7,7 +7,7 @@ from transfold.modules.logger import TransfoldLogger
 
 # do not change this params
 SCOPE_PATH = Path("tests/data/test_scope.tsv").absolute()
-OUTPUT = Path("tests/data/").absolute()
+OUTPUT_PATH = Path("tests/data/sequence_data/").absolute()
 LOGS_PATH = Path("tests/logs").absolute()
 PATTERN = ".*"
 JOBS = 16
@@ -62,150 +62,101 @@ def test_SequenceDataDownloader():
     downloader = SequenceDataDownloader(
         scope_path=SCOPE_PATH,
         pattern=PATTERN,
-        output=OUTPUT,
+        output=OUTPUT_PATH,
         retries=RETRIES,
         timeout=TIMEOUT,
         jobs=JOBS,
         logger=logger,
         verbose=False,
     )
-    (OUTPUT / "temp").mkdir(parents=True)
-    (OUTPUT / "sequence_data" / "a.1.1.2" / "1idr" / "data").mkdir(
-        parents=True
-    )
+    (OUTPUT_PATH / "temp").mkdir(parents=True)
+    (OUTPUT_PATH / "a.1.1.2" / "1idr" / "data").mkdir(parents=True)
     assert type(downloader.start()) == Writeable
     downloader.start()
     for pdb_id in ["1ux8", "2gkm", "2gl3"]:
         assert (
-            OUTPUT
-            / "sequence_data"
-            / "a.1.1.1"
-            / pdb_id
-            / "data"
-            / "data_report.jsonl"
+            OUTPUT_PATH / "a.1.1.1" / pdb_id / "data" / "data_report.jsonl"
         ).exists()
         assert (
-            OUTPUT
-            / "sequence_data"
-            / "a.1.1.1"
-            / pdb_id
-            / "data"
-            / "dataset_catalog.json"
+            OUTPUT_PATH / "a.1.1.1" / pdb_id / "data" / "dataset_catalog.json"
         ).exists()
     assert not (
-        OUTPUT
-        / "sequence_data"
-        / "a.1.1.2"
-        / "1idr"
-        / "data"
-        / "data_report.jsonl"
+        OUTPUT_PATH / "a.1.1.2" / "1idr" / "data" / "data_report.jsonl"
     ).exists()
-    if (OUTPUT / "sequence_data").exists():  # pragma: no cover
-        shutil.rmtree(OUTPUT / "sequence_data")
-    if (OUTPUT / "temp").exists():  # pragma: no cover
-        shutil.rmtree(OUTPUT / "temp")
+    if OUTPUT_PATH.exists():  # pragma: no cover
+        shutil.rmtree(OUTPUT_PATH)
+    if (OUTPUT_PATH / "temp").exists():  # pragma: no cover
+        shutil.rmtree(OUTPUT_PATH / "temp")
 
 
 def test_SequenceDataDownloader_verbose():
     downloader = SequenceDataDownloader(
         scope_path=SCOPE_PATH,
         pattern=PATTERN,
-        output=OUTPUT,
+        output=OUTPUT_PATH,
         retries=RETRIES,
         timeout=TIMEOUT,
         jobs=JOBS,
         logger=logger,
         verbose=True,
     )
-    (OUTPUT / "temp").mkdir(parents=True)
-    (OUTPUT / "sequence_data" / "a.1.1.2" / "1idr" / "data").mkdir(
-        parents=True
-    )
+    (OUTPUT_PATH / "temp").mkdir(parents=True)
+    (OUTPUT_PATH / "a.1.1.2" / "1idr" / "data").mkdir(parents=True)
     assert type(downloader.start()) == Writeable
     downloader.start()
     for pdb_id in ["1ux8", "2gkm", "2gl3"]:
         assert (
-            OUTPUT
-            / "sequence_data"
-            / "a.1.1.1"
-            / pdb_id
-            / "data"
-            / "data_report.jsonl"
+            OUTPUT_PATH / "a.1.1.1" / pdb_id / "data" / "data_report.jsonl"
         ).exists()
         assert (
-            OUTPUT
-            / "sequence_data"
-            / "a.1.1.1"
-            / pdb_id
-            / "data"
-            / "dataset_catalog.json"
+            OUTPUT_PATH / "a.1.1.1" / pdb_id / "data" / "dataset_catalog.json"
         ).exists()
     assert not (
-        OUTPUT
-        / "sequence_data"
-        / "a.1.1.2"
-        / "1idr"
-        / "data"
-        / "data_report.jsonl"
+        OUTPUT_PATH / "a.1.1.2" / "1idr" / "data" / "data_report.jsonl"
     ).exists()
-    if (OUTPUT / "sequence_data").exists():  # pragma: no cover
-        shutil.rmtree(OUTPUT / "sequence_data")
-    if (OUTPUT / "temp").exists():  # pragma: no cover
-        shutil.rmtree(OUTPUT / "temp")
+    if OUTPUT_PATH.exists():  # pragma: no cover
+        shutil.rmtree(OUTPUT_PATH)
+    if (OUTPUT_PATH / "temp").exists():  # pragma: no cover
+        shutil.rmtree(OUTPUT_PATH / "temp")
 
 
 def test_download_sequence_data():
     downloader = SequenceDataDownloader(
         scope_path=SCOPE_PATH,
         pattern=PATTERN,
-        output=OUTPUT,
+        output=OUTPUT_PATH,
         retries=RETRIES,
         timeout=TIMEOUT,
         jobs=JOBS,
         logger=logger,
         verbose=False,
     )
-    (OUTPUT / "temp").mkdir(parents=True)
+    (OUTPUT_PATH / "temp").mkdir(parents=True)
     assert type(downloader._download_sequence_data(TRUE_PDB_ID)) == Writeable
     downloader._download_sequence_data(TRUE_PDB_ID)
     assert (
-        OUTPUT
-        / "sequence_data"
-        / "a.1.1.1"
-        / "1ux8"
-        / "data"
-        / "data_report.jsonl"
+        OUTPUT_PATH / "a.1.1.1" / "1ux8" / "data" / "data_report.jsonl"
     ).exists()
     downloader._download_sequence_data(FALSE_PDB_ID)
     assert not (
-        OUTPUT
-        / "sequence_data"
-        / "a.1.1.1"
-        / FALSE_PDB_ID
-        / "data"
-        / "data_report.jsonl"
+        OUTPUT_PATH / "a.1.1.1" / FALSE_PDB_ID / "data" / "data_report.jsonl"
     ).exists()
     # test case where UniProt ID is found but not GeneID
     downloader._download_sequence_data("1dly")
     assert not (
-        OUTPUT
-        / "sequence_data"
-        / "a.1.1.1"
-        / "1dly"
-        / "data"
-        / "data_report.jsonl"
+        OUTPUT_PATH / "a.1.1.1" / "1dly" / "data" / "data_report.jsonl"
     ).exists()
-    if (OUTPUT / "sequence_data").exists():  # pragma: no cover
-        shutil.rmtree(OUTPUT / "sequence_data")
-    if (OUTPUT / "temp").exists():  # pragma: no cover
-        shutil.rmtree(OUTPUT / "temp")
+    if OUTPUT_PATH.exists():  # pragma: no cover
+        shutil.rmtree(OUTPUT_PATH)
+    if (OUTPUT_PATH / "temp").exists():  # pragma: no cover
+        shutil.rmtree(OUTPUT_PATH / "temp")
 
 
 def test_get_category():
     downloader = SequenceDataDownloader(
         scope_path=SCOPE_PATH,
         pattern=PATTERN,
-        output=OUTPUT,
+        output=OUTPUT_PATH,
         retries=RETRIES,
         timeout=TIMEOUT,
         jobs=JOBS,
@@ -222,7 +173,7 @@ def test_get_pdb_ids():
     downloader = SequenceDataDownloader(
         scope_path=SCOPE_PATH,
         pattern=PATTERN,
-        output=OUTPUT,
+        output=OUTPUT_PATH,
         retries=RETRIES,
         timeout=TIMEOUT,
         jobs=JOBS,
@@ -236,7 +187,7 @@ def test_get_uniprot_id():
     downloader = SequenceDataDownloader(
         scope_path=SCOPE_PATH,
         pattern=PATTERN,
-        output=OUTPUT,
+        output=OUTPUT_PATH,
         retries=RETRIES,
         timeout=TIMEOUT,
         jobs=JOBS,
@@ -256,7 +207,7 @@ def test_get_gene_id():
     downloader = SequenceDataDownloader(
         scope_path=SCOPE_PATH,
         pattern=PATTERN,
-        output=OUTPUT,
+        output=OUTPUT_PATH,
         retries=RETRIES,
         timeout=TIMEOUT,
         jobs=JOBS,

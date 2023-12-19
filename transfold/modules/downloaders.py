@@ -153,7 +153,7 @@ class SequenceDataDownloader:
     ) -> Writeable | None:
         # skip if dir already exists or uniprot_id or gene_id is not found
         category = self._get_category(pdb_id)
-        if (self.output / "sequence_data" / category / pdb_id).exists():
+        if (self.output / category / pdb_id).exists():
             self.logger.debug(f"Skipping {pdb_id} as it already exists")
             return None
         uniprot_id = self._get_uniprot_id(pdb_id)
@@ -184,13 +184,12 @@ class SequenceDataDownloader:
             zip_ref.extractall(self.output / "temp" / pdb_id)
         # move data to categorized sequence_data folder
         self.logger.debug(
-            "Moving data to: "
-            f"{self.output / 'sequence_data' / category / pdb_id}"
+            "Moving data to: " f"{self.output / category / pdb_id}"
         )
-        (self.output / "sequence_data" / category / pdb_id).mkdir(parents=True)
+        (self.output / category / pdb_id).mkdir(parents=True)
         shutil.move(
             self.output / "temp" / pdb_id / "ncbi_dataset" / "data",
-            self.output / "sequence_data" / category / pdb_id,
+            self.output / category / pdb_id,
             copy_function=shutil.copytree,
         )
         if (self.output / "temp" / pdb_id).exists():

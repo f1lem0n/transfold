@@ -96,14 +96,14 @@ def cli(version):
 @click.option(
     "--input",
     "-i",
-    default=Path(__file__).parent.absolute() / "data",
+    default=Path(__file__).parent.absolute() / "data" / "sequence_data",
     help="Path to input directory",
     type=Path,
 )
 @click.option(
     "--output",
     "-o",
-    default=Path(__file__).parent.absolute() / "data",
+    default=Path(__file__).parent.absolute() / "data" / "structure_data",
     help="Path to output directory",
     type=Path,
 )
@@ -209,7 +209,7 @@ def run(
 @click.option(
     "--output",
     "-o",
-    default=Path(__file__).parent.absolute() / "data",
+    default=Path(__file__).parent.absolute() / "data" / "sequence_data",
     help="Path to data output directory",
     type=Path,
 )
