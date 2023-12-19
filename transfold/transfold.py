@@ -41,7 +41,7 @@ class RichGroup(click.Group):
         for param in self.get_params(ctx):
             default_value = str(param.get_default(ctx))
             if len(default_value) > 10:
-                default_value = default_value[:7] + "..."
+                default_value = "..." + default_value[-7:]
             console.print(
                 f"\t{param.get_help_record(ctx)[0]:<40}"
                 f"{'[ ' + default_value + ' ]':<25}"
@@ -66,7 +66,7 @@ class RichCommand(click.Command):
         for param in self.get_params(ctx):
             default_value = str(param.get_default(ctx))
             if len(default_value) > 10:
-                default_value = default_value[:7] + "..."
+                default_value = "..." + default_value[-7:]
             console.print(
                 f"\t{param.get_help_record(ctx)[0]:<40}"
                 f"{'[ ' + default_value + ' ]':<25}"
