@@ -220,6 +220,12 @@ class McCaskill(object):
                     idx,
                 )
 
+    def _filter(self, seq: str) -> bool:
+        # temporary filter for long sequences
+        if len(seq) > 1000:
+            return False
+        return True
+
     def _get_structure(
         self,
         seq: str,
@@ -229,6 +235,8 @@ class McCaskill(object):
         source: str,
         idx: int,
     ) -> Writeable | None:
+        if not self._filter(seq):
+            return None
         output = (
             self.output / category / pdb_id / source / f"structure_{idx}"
         ).absolute()
