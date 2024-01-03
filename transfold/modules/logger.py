@@ -3,19 +3,27 @@ from pathlib import Path
 
 
 class TransfoldLogger(object):
-    def __new__(self, prefix: Path, name: str, start_time: str, verbose=False):
+    def __new__(
+        self,
+        prefix: Path,
+        name: str,
+        start_time: str,
+        logging_level: int,
+        verbose=False,
+    ):
         if not prefix.exists():  # pragma: no cover
             prefix.mkdir(parents=True)
 
         logger = logging.getLogger(name)
-        logger.setLevel(logging.DEBUG)
+        level = (logging_level + 1) * 10
+        logger.setLevel(level)
         # overwrite handlers if they already exist
         if logger.handlers:
             logger.handlers.clear()
         c_handler = logging.StreamHandler()
         f_handler = logging.FileHandler(f"{prefix}/{start_time}_{name}.log")
         if verbose:
-            c_handler.setLevel(logging.DEBUG)
+            c_handler.setLevel(level)
             c_format = logging.Formatter(
                 "%(asctime)-30s %(funcName)-40s %(levelname)-10s %(message)s"
             )

@@ -150,6 +150,14 @@ def cli(version):
     type=Path,
 )
 @click.option(
+    "--logging-level",
+    "-L",
+    default=0,
+    help="Logging level "
+    "(0 - debug, 1 - info, 2 - warning, 3 - error, 4 - critical)",
+    type=int,
+)
+@click.option(
     "--verbose",
     "-v",
     is_flag=True,
@@ -165,11 +173,14 @@ def run(
     iters,
     jobs,
     log,
+    logging_level,
     verbose,
 ):
     # TODO add McCaskill algorithm
     start_time = strftime(r"%Y-%m-%d_%H%M%S", localtime())
-    logger = TransfoldLogger(Path(log).absolute(), "calc", start_time, verbose)
+    logger = TransfoldLogger(
+        Path(log).absolute(), "calc", start_time, logging_level, verbose
+    )
     calculator = McCaskill(
         input=input,
         output=output,
@@ -221,6 +232,14 @@ def run(
     type=Path,
 )
 @click.option(
+    "--logging-level",
+    "-L",
+    default=0,
+    help="Logging level "
+    "(0 - debug, 1 - info, 2 - warning, 3 - error, 4 - critical)",
+    type=int,
+)
+@click.option(
     "--jobs",
     "-j",
     default=1,
@@ -248,10 +267,12 @@ def run(
     default=False,
     help="Print debug messages to stdout",
 )
-def download(scope, pattern, output, log, jobs, retries, timeout, verbose):
+def download(
+    scope, pattern, output, log, logging_level, jobs, retries, timeout, verbose
+):
     start_time = strftime(r"%Y-%m-%d_%H%M%S", localtime())
     logger = TransfoldLogger(
-        Path(log).absolute(), "download", start_time, verbose
+        Path(log).absolute(), "download", start_time, logging_level, verbose
     )
     downloader = SequenceDataDownloader(
         scope_path=Path(scope).absolute(),
