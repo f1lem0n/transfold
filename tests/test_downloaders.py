@@ -55,7 +55,7 @@ GENE_IDS_FROM_SCOPES = [
 ]
 
 start_time = strftime("%Y-%m-%d_%H%M%S", localtime())
-logger = TransfoldLogger(LOGS_PATH, "test_scope_parser", start_time)
+logger = TransfoldLogger(LOGS_PATH, "test_scope_parser", start_time, 0)
 
 
 def test_SequenceDataDownloader():

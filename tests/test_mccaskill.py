@@ -24,7 +24,7 @@ VALID_SEQ = "GGUCCAC"
 INVALID_SEQ = "GGTCCACZ"
 
 start_time = strftime("%Y-%m-%d_%H%M%S", localtime())
-logger = TransfoldLogger(LOGS_PATH, "test_mccaskill", start_time)
+logger = TransfoldLogger(LOGS_PATH, "test_mccaskill", start_time, 0)
 
 
 def test_McCaskill():

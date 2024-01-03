@@ -7,7 +7,7 @@ LOGS_PATH = Path("tests/logs").absolute()
 LOGGER_NAME = "test_logger"
 
 start_time = strftime(r"%Y-%m-%d_%H%M%S", localtime())
-logger = TransfoldLogger(LOGS_PATH, LOGGER_NAME, start_time)
+logger = TransfoldLogger(LOGS_PATH, LOGGER_NAME, start_time, 0)
 
 
 def test_logger_file_handler():
@@ -55,7 +55,7 @@ def test_logger_console_handler(capfd):
 
 def test_logger_verbose(capsys):
     # overwrite logger with verbose logger
-    logger = TransfoldLogger(LOGS_PATH, LOGGER_NAME, start_time, verbose=True)
+    logger = TransfoldLogger(LOGS_PATH, LOGGER_NAME, start_time, 0, True)
     logger.info("This is an info message")
     logger.debug("This is a debug message")
     logger.warning("This is a warning")
